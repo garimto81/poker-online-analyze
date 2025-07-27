@@ -1,0 +1,36 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**' # Only run when changes are made in the backend directory
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9' # Use a Python version compatible with your backend
+
+      - name: Install Render CLI (if needed, or use direct API/Git push)
+        run: | # Render CLI는 직접적인 배포보다는 서비스 관리에 더 적합할 수 있습니다.
+             # Render는 GitHub 연동을 통한 자동 배포를 강력히 권장합니다.
+             # 이 스텝은 예시이며, 실제 배포는 Render 대시보드에서 GitHub 연동을 설정하는 것이 일반적입니다.
+             # pip install render-cli # Render CLI가 Python 패키지로 제공된다면
+             echo "Render deployment is typically handled via direct GitHub integration on Render.com."
+             echo "This workflow serves as a placeholder or for advanced CLI-based deployments."
+
+      - name: Trigger Render Deploy Hook
+        # Render 서비스 설정 시 제공되는 Build Hook URL을 사용합니다.
+        # 이 URL은 Render 대시보드에서 해당 서비스의 Settings 탭에서 찾을 수 있습니다.
+        # ${{ secrets.RENDER_BUILD_HOOK_URL }} 에 Build Hook URL을 저장해야 합니다.
+        run: curl -X POST ${{ secrets.RENDER_BUILD_HOOK_URL }}
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }} # API 키는 인증에 사용될 수 있지만, Build Hook은 보통 키 없이 작동합니다.
