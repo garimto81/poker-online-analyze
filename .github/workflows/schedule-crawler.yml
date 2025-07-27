@@ -30,7 +30,4 @@ jobs:
       - name: Run PokerScout Crawler
         run: python crawlers/poker_scout_crawler.py
         working-directory: ./poker-online-analyze
-        env:
-          # 크롤러 스크립트에서 SERVICE_ACCOUNT_KEY_PATH를 이 파일로 설정해야 합니다.
-          # 현재 스크립트에는 하드코딩되어 있으므로, 이 부분을 수정해야 합니다.
-          # SERVICE_ACCOUNT_KEY_PATH: ./key/firebase-service-account.json
+        
