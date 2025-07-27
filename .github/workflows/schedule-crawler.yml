@@ -30,6 +30,7 @@ jobs:
 
       - name: Create Firebase Service Account Key File
         run: |
+          mkdir -p key
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" > ./key/firebase-service-account.json
 
       - name: Run PokerScout Crawler

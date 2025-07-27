@@ -1,0 +1,5 @@
+﻿2025-07-27T18:12:18.0112846Z ##[group]Run pwd
+2025-07-27T18:12:18.0113486Z [36;1mpwd[0m
+2025-07-27T18:12:18.0145955Z shell: /usr/bin/bash -e ***0***
+2025-07-27T18:12:18.0146621Z ##[endgroup]
+2025-07-27T18:12:18.0215006Z /home/runner/work/poker-online-analyze/poker-online-analyze

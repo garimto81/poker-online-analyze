@@ -1,0 +1,361 @@
+﻿2025-07-27T18:12:16.6906673Z Current runner version: '2.326.0'
+2025-07-27T18:12:16.6942323Z ##[group]Runner Image Provisioner
+2025-07-27T18:12:16.6943981Z Hosted Compute Agent
+2025-07-27T18:12:16.6945413Z Version: 20250711.363
+2025-07-27T18:12:16.6946733Z Commit: 6785254374ce925a23743850c1cb91912ce5c14c
+2025-07-27T18:12:16.6948445Z Build Date: 2025-07-11T20:04:25Z
+2025-07-27T18:12:16.6949756Z ##[endgroup]
+2025-07-27T18:12:16.6951330Z ##[group]Operating System
+2025-07-27T18:12:16.6952628Z Ubuntu
+2025-07-27T18:12:16.6953916Z 24.04.2
+2025-07-27T18:12:16.6954999Z LTS
+2025-07-27T18:12:16.6956251Z ##[endgroup]
+2025-07-27T18:12:16.6957383Z ##[group]Runner Image
+2025-07-27T18:12:16.6958892Z Image: ubuntu-24.04
+2025-07-27T18:12:16.6961017Z Version: 20250720.1.0
+2025-07-27T18:12:16.6963272Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250720.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-07-27T18:12:16.6966460Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250720.1
+2025-07-27T18:12:16.6968736Z ##[endgroup]
+2025-07-27T18:12:16.6971778Z ##[group]GITHUB_TOKEN Permissions
+2025-07-27T18:12:16.6975025Z Contents: read
+2025-07-27T18:12:16.6976531Z Metadata: read
+2025-07-27T18:12:16.6977733Z Packages: read
+2025-07-27T18:12:16.6978997Z ##[endgroup]
+2025-07-27T18:12:16.6982857Z Secret source: Actions
+2025-07-27T18:12:16.6984430Z Prepare workflow directory
+2025-07-27T18:12:16.7463486Z Prepare all required actions
+2025-07-27T18:12:16.7520777Z Getting action download info
+2025-07-27T18:12:17.0631043Z ##[group]Download immutable action package 'actions/checkout@v4'
+2025-07-27T18:12:17.0632402Z Version: 4.2.2
+2025-07-27T18:12:17.0633580Z Digest: sha256:ccb2698953eaebd21c7bf6268a94f9c26518a7e38e27e0b83c1fe1ad049819b1
+2025-07-27T18:12:17.0635018Z Source commit SHA: 11bd71901bbe5b1630ceea73d27597364c9af683
+2025-07-27T18:12:17.0635979Z ##[endgroup]
+2025-07-27T18:12:17.1714988Z ##[group]Download immutable action package 'actions/setup-python@v5'
+2025-07-27T18:12:17.1716140Z Version: 5.6.0
+2025-07-27T18:12:17.1717095Z Digest: sha256:0b35a0c11c97499e4e0576589036d450b9f5f9da74b7774225b3614b57324404
+2025-07-27T18:12:17.1718316Z Source commit SHA: a26af69be951a213d495a4c3e4e4022e16d87065
+2025-07-27T18:12:17.1719266Z ##[endgroup]
+2025-07-27T18:12:17.4751555Z Complete job name: crawl
+2025-07-27T18:12:17.5429881Z ##[group]Run actions/checkout@v4
+2025-07-27T18:12:17.5431061Z with:
+2025-07-27T18:12:17.5431649Z   repository: garimto81/poker-online-analyze
+2025-07-27T18:12:17.5432473Z   token: ***
+2025-07-27T18:12:17.5432979Z   ssh-strict: true
+2025-07-27T18:12:17.5433502Z   ssh-user: git
+2025-07-27T18:12:17.5434031Z   persist-credentials: true
+2025-07-27T18:12:17.5434601Z   clean: true
+2025-07-27T18:12:17.5435165Z   sparse-checkout-cone-mode: true
+2025-07-27T18:12:17.5435777Z   fetch-depth: 1
+2025-07-27T18:12:17.5436298Z   fetch-tags: false
+2025-07-27T18:12:17.5436833Z   show-progress: true
+2025-07-27T18:12:17.5437387Z   lfs: false
+2025-07-27T18:12:17.5437883Z   submodules: false
+2025-07-27T18:12:17.5438423Z   set-safe-directory: true
+2025-07-27T18:12:17.5439269Z ##[endgroup]
+2025-07-27T18:12:17.6521994Z Syncing repository: garimto81/poker-online-analyze
+2025-07-27T18:12:17.6525247Z ##[group]Getting Git version info
+2025-07-27T18:12:17.6527012Z Working directory is '/home/runner/work/poker-online-analyze/poker-online-analyze'
+2025-07-27T18:12:17.6529727Z [command]/usr/bin/git version
+2025-07-27T18:12:17.6545490Z git version 2.50.1
+2025-07-27T18:12:17.6572677Z ##[endgroup]
+2025-07-27T18:12:17.6586614Z Temporarily overriding HOME='/home/runner/work/_temp/0d9fa2f5-e1dc-425e-a836-e7e9fea470f4' before making global git config changes
+2025-07-27T18:12:17.6589388Z Adding repository directory to the temporary git global config as a safe directory
+2025-07-27T18:12:17.6602459Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:12:17.6635207Z Deleting the contents of '/home/runner/work/poker-online-analyze/poker-online-analyze'
+2025-07-27T18:12:17.6638569Z ##[group]Initializing the repository
+2025-07-27T18:12:17.6642880Z [command]/usr/bin/git init /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:12:17.6699467Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-07-27T18:12:17.6701569Z hint: is subject to change. To configure the initial branch name to use in all
+2025-07-27T18:12:17.6703291Z hint: of your new repositories, which will suppress this warning, call:
+2025-07-27T18:12:17.6704534Z hint:
+2025-07-27T18:12:17.6705302Z hint: 	git config --global init.defaultBranch <name>
+2025-07-27T18:12:17.6706025Z hint:
+2025-07-27T18:12:17.6706711Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-07-27T18:12:17.6707715Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-07-27T18:12:17.6709058Z hint:
+2025-07-27T18:12:17.6709587Z hint: 	git branch -m <name>
+2025-07-27T18:12:17.6710351Z hint:
+2025-07-27T18:12:17.6711083Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-07-27T18:12:17.6712368Z Initialized empty Git repository in /home/runner/work/poker-online-analyze/poker-online-analyze/.git/
+2025-07-27T18:12:17.6714776Z [command]/usr/bin/git remote add origin https://github.com/garimto81/poker-online-analyze
+2025-07-27T18:12:17.6744334Z ##[endgroup]
+2025-07-27T18:12:17.6745270Z ##[group]Disabling automatic garbage collection
+2025-07-27T18:12:17.6747806Z [command]/usr/bin/git config --local gc.auto 0
+2025-07-27T18:12:17.6775175Z ##[endgroup]
+2025-07-27T18:12:17.6776071Z ##[group]Setting up auth
+2025-07-27T18:12:17.6781411Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-07-27T18:12:17.6814514Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-07-27T18:12:17.7094560Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-07-27T18:12:17.7126390Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-07-27T18:12:17.7365710Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-07-27T18:12:17.7402904Z ##[endgroup]
+2025-07-27T18:12:17.7404538Z ##[group]Fetching the repository
+2025-07-27T18:12:17.7412915Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +83bb40e1d790330d432420d5109e0ac0ad90fae8:refs/remotes/origin/main
+2025-07-27T18:12:17.9629661Z From https://github.com/garimto81/poker-online-analyze
+2025-07-27T18:12:17.9631404Z  * [new ref]         83bb40e1d790330d432420d5109e0ac0ad90fae8 -> origin/main
+2025-07-27T18:12:17.9653961Z ##[endgroup]
+2025-07-27T18:12:17.9655388Z ##[group]Determining the checkout info
+2025-07-27T18:12:17.9656963Z ##[endgroup]
+2025-07-27T18:12:17.9660461Z [command]/usr/bin/git sparse-checkout disable
+2025-07-27T18:12:17.9779299Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-07-27T18:12:17.9806294Z ##[group]Checking out the ref
+2025-07-27T18:12:17.9808930Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2025-07-27T18:12:17.9866315Z Switched to a new branch 'main'
+2025-07-27T18:12:17.9869173Z branch 'main' set up to track 'origin/main'.
+2025-07-27T18:12:17.9875030Z ##[endgroup]
+2025-07-27T18:12:17.9906168Z [command]/usr/bin/git log -1 --format=%H
+2025-07-27T18:12:17.9926900Z 83bb40e1d790330d432420d5109e0ac0ad90fae8
+2025-07-27T18:12:18.0112865Z ##[group]Run pwd
+2025-07-27T18:12:18.0113491Z [36;1mpwd[0m
+2025-07-27T18:12:18.0145975Z shell: /usr/bin/bash -e ***0***
+2025-07-27T18:12:18.0146625Z ##[endgroup]
+2025-07-27T18:12:18.0215031Z /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:12:18.0314857Z ##[group]Run ls -R
+2025-07-27T18:12:18.0315626Z [36;1mls -R[0m
+2025-07-27T18:12:18.0341734Z shell: /usr/bin/bash -e ***0***
+2025-07-27T18:12:18.0342358Z ##[endgroup]
+2025-07-27T18:12:18.0403118Z .:
+2025-07-27T18:12:18.0403962Z README.md
+2025-07-27T18:12:18.0404853Z backend
+2025-07-27T18:12:18.0405699Z crawlers
+2025-07-27T18:12:18.0406847Z docker-compose.yml
+2025-07-27T18:12:18.0407785Z docs
+2025-07-27T18:12:18.0408504Z frontend
+2025-07-27T18:12:18.0408790Z 
+2025-07-27T18:12:18.0409022Z ./backend:
+2025-07-27T18:12:18.0409770Z Dockerfile
+2025-07-27T18:12:18.0410505Z app
+2025-07-27T18:12:18.0411124Z main.py
+2025-07-27T18:12:18.0411661Z requirements.txt
+2025-07-27T18:12:18.0412000Z 
+2025-07-27T18:12:18.0412251Z ./backend/app:
+2025-07-27T18:12:18.0412795Z api
+2025-07-27T18:12:18.0413304Z crud
+2025-07-27T18:12:18.0413813Z database
+2025-07-27T18:12:18.0414337Z schemas
+2025-07-27T18:12:18.0414884Z services
+2025-07-27T18:12:18.0415171Z 
+2025-07-27T18:12:18.0415428Z ./backend/app/api:
+2025-07-27T18:12:18.0416043Z endpoints
+2025-07-27T18:12:18.0416347Z 
+2025-07-27T18:12:18.0416621Z ./backend/app/api/endpoints:
+2025-07-27T18:12:18.0417275Z poker.py
+2025-07-27T18:12:18.0417569Z 
+2025-07-27T18:12:18.0417825Z ./backend/app/crud:
+2025-07-27T18:12:18.0418407Z crud.py
+2025-07-27T18:12:18.0418693Z 
+2025-07-27T18:12:18.0418956Z ./backend/app/database:
+2025-07-27T18:12:18.0419553Z __init__.py
+2025-07-27T18:12:18.0420365Z database.py
+2025-07-27T18:12:18.0420909Z models.py
+2025-07-27T18:12:18.0421219Z 
+2025-07-27T18:12:18.0421458Z ./backend/app/schemas:
+2025-07-27T18:12:18.0422003Z schemas.py
+2025-07-27T18:12:18.0422270Z 
+2025-07-27T18:12:18.0422502Z ./backend/app/services:
+2025-07-27T18:12:18.0423057Z poker_crawler.py
+2025-07-27T18:12:18.0423357Z 
+2025-07-27T18:12:18.0423581Z ./crawlers:
+2025-07-27T18:12:18.0424080Z poker_scout_crawler.py
+2025-07-27T18:12:18.0424637Z simple_top10_crawl.py
+2025-07-27T18:12:18.0424953Z 
+2025-07-27T18:12:18.0425171Z ./docs:
+2025-07-27T18:12:18.0425672Z poker_analysis_project_plan.md
+2025-07-27T18:12:18.0426034Z 
+2025-07-27T18:12:18.0426260Z ./frontend:
+2025-07-27T18:12:18.0520931Z ##[group]Run actions/setup-python@v5
+2025-07-27T18:12:18.0521624Z with:
+2025-07-27T18:12:18.0522119Z   python-version: 3.9
+2025-07-27T18:12:18.0522660Z   check-latest: false
+2025-07-27T18:12:18.0523386Z   token: ***
+2025-07-27T18:12:18.0523904Z   update-environment: true
+2025-07-27T18:12:18.0524478Z   allow-prereleases: false
+2025-07-27T18:12:18.0525043Z   freethreaded: false
+2025-07-27T18:12:18.0525570Z ##[endgroup]
+2025-07-27T18:12:18.2158739Z ##[group]Installed versions
+2025-07-27T18:12:18.2857521Z Successfully set up CPython (3.9.23)
+2025-07-27T18:12:18.2859227Z ##[endgroup]
+2025-07-27T18:12:18.2970774Z ##[group]Run pip install cloudscraper beautifulsoup4 firebase-admin
+2025-07-27T18:12:18.2971935Z [36;1mpip install cloudscraper beautifulsoup4 firebase-admin[0m
+2025-07-27T18:12:18.3007440Z shell: /usr/bin/bash -e ***0***
+2025-07-27T18:12:18.3008125Z env:
+2025-07-27T18:12:18.3008780Z   pythonLocation: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:18.3009824Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib/pkgconfig
+2025-07-27T18:12:18.3011057Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:18.3011960Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:18.3012869Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:18.3013789Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib
+2025-07-27T18:12:18.3014587Z ##[endgroup]
+2025-07-27T18:12:21.4673206Z Collecting cloudscraper
+2025-07-27T18:12:21.5162487Z   Downloading cloudscraper-1.2.71-py2.py3-none-any.whl.metadata (19 kB)
+2025-07-27T18:12:21.5398504Z Collecting beautifulsoup4
+2025-07-27T18:12:21.5540976Z   Downloading beautifulsoup4-4.13.4-py3-none-any.whl.metadata (3.8 kB)
+2025-07-27T18:12:21.5775206Z Collecting firebase-admin
+2025-07-27T18:12:21.5917193Z   Downloading firebase_admin-7.0.0-py3-none-any.whl.metadata (1.7 kB)
+2025-07-27T18:12:21.6315973Z Collecting pyparsing>=2.4.7 (from cloudscraper)
+2025-07-27T18:12:21.6459575Z   Downloading pyparsing-3.2.3-py3-none-any.whl.metadata (5.0 kB)
+2025-07-27T18:12:21.6796180Z Collecting requests>=2.9.2 (from cloudscraper)
+2025-07-27T18:12:21.6939540Z   Downloading requests-2.32.4-py3-none-any.whl.metadata (4.9 kB)
+2025-07-27T18:12:21.7101677Z Collecting requests-toolbelt>=0.9.1 (from cloudscraper)
+2025-07-27T18:12:21.7244713Z   Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)
+2025-07-27T18:12:21.7467776Z Collecting soupsieve>1.2 (from beautifulsoup4)
+2025-07-27T18:12:21.7611296Z   Downloading soupsieve-2.7-py3-none-any.whl.metadata (4.6 kB)
+2025-07-27T18:12:21.7818393Z Collecting typing-extensions>=4.0.0 (from beautifulsoup4)
+2025-07-27T18:12:21.7961876Z   Downloading typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
+2025-07-27T18:12:21.8127335Z Collecting cachecontrol>=0.14.3 (from firebase-admin)
+2025-07-27T18:12:21.8268925Z   Downloading cachecontrol-0.14.3-py3-none-any.whl.metadata (3.1 kB)
+2025-07-27T18:12:21.8725351Z Collecting google-api-core<3.0.0dev,>=2.25.1 (from google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:21.8868291Z   Downloading google_api_core-2.25.1-py3-none-any.whl.metadata (3.0 kB)
+2025-07-27T18:12:21.9156532Z Collecting google-cloud-firestore>=2.21.0 (from firebase-admin)
+2025-07-27T18:12:21.9299368Z   Downloading google_cloud_firestore-2.21.0-py3-none-any.whl.metadata (9.9 kB)
+2025-07-27T18:12:21.9639687Z Collecting google-cloud-storage>=3.1.1 (from firebase-admin)
+2025-07-27T18:12:21.9788450Z   Downloading google_cloud_storage-3.2.0-py3-none-any.whl.metadata (13 kB)
+2025-07-27T18:12:22.0009138Z Collecting pyjwt>=2.10.1 (from pyjwt[crypto]>=2.10.1->firebase-admin)
+2025-07-27T18:12:22.0150811Z   Downloading PyJWT-2.10.1-py3-none-any.whl.metadata (4.0 kB)
+2025-07-27T18:12:22.0415341Z Collecting httpx==0.28.1 (from httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:22.0556511Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2025-07-27T18:12:22.0814674Z Collecting anyio (from httpx==0.28.1->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:22.0955813Z   Downloading anyio-4.9.0-py3-none-any.whl.metadata (4.7 kB)
+2025-07-27T18:12:22.1254900Z Collecting certifi (from httpx==0.28.1->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:22.1398052Z   Downloading certifi-2025.7.14-py3-none-any.whl.metadata (2.4 kB)
+2025-07-27T18:12:22.1621798Z Collecting httpcore==1.* (from httpx==0.28.1->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:22.1763988Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2025-07-27T18:12:22.1980739Z Collecting idna (from httpx==0.28.1->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:22.2121901Z   Downloading idna-3.10-py3-none-any.whl.metadata (10 kB)
+2025-07-27T18:12:22.2361093Z Collecting h2<5,>=3 (from httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:22.2503775Z   Downloading h2-4.2.0-py3-none-any.whl.metadata (5.1 kB)
+2025-07-27T18:12:22.2746513Z Collecting googleapis-common-protos<2.0.0,>=1.56.2 (from google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:22.2888528Z   Downloading googleapis_common_protos-1.70.0-py3-none-any.whl.metadata (9.3 kB)
+2025-07-27T18:12:22.5448737Z Collecting protobuf!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<7.0.0,>=3.19.5 (from google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:22.5597550Z   Downloading protobuf-6.31.1-cp39-abi3-manylinux2014_x86_64.whl.metadata (593 bytes)
+2025-07-27T18:12:22.5844121Z Collecting proto-plus<2.0.0,>=1.22.3 (from google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:22.5986121Z   Downloading proto_plus-1.26.1-py3-none-any.whl.metadata (2.2 kB)
+2025-07-27T18:12:22.6453072Z Collecting google-auth<3.0.0,>=2.14.1 (from google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:22.6596043Z   Downloading google_auth-2.40.3-py2.py3-none-any.whl.metadata (6.2 kB)
+2025-07-27T18:12:23.3335260Z Collecting grpcio<2.0.0,>=1.33.2 (from google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:23.3484528Z   Downloading grpcio-1.74.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.8 kB)
+2025-07-27T18:12:23.3934960Z Collecting grpcio-status<2.0.0,>=1.33.2 (from google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:23.4080875Z   Downloading grpcio_status-1.74.0-py3-none-any.whl.metadata (1.1 kB)
+2025-07-27T18:12:23.4314262Z Collecting cachetools<6.0,>=2.0.0 (from google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:23.4457014Z   Downloading cachetools-5.5.2-py3-none-any.whl.metadata (5.4 kB)
+2025-07-27T18:12:23.4675313Z Collecting pyasn1-modules>=0.2.1 (from google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:23.4817765Z   Downloading pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+2025-07-27T18:12:23.5012703Z Collecting rsa<5,>=3.1.4 (from google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:23.5155901Z   Downloading rsa-4.9.1-py3-none-any.whl.metadata (5.6 kB)
+2025-07-27T18:12:23.7034395Z Collecting hyperframe<7,>=6.1 (from h2<5,>=3->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:23.7176540Z   Downloading hyperframe-6.1.0-py3-none-any.whl.metadata (4.3 kB)
+2025-07-27T18:12:23.7314139Z Collecting hpack<5,>=4.1 (from h2<5,>=3->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:23.7455854Z   Downloading hpack-4.1.0-py3-none-any.whl.metadata (4.6 kB)
+2025-07-27T18:12:23.7607380Z Collecting h11>=0.16 (from httpcore==1.*->httpx==0.28.1->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:23.7747541Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2025-07-27T18:12:23.9399147Z Collecting charset_normalizer<4,>=2 (from requests>=2.9.2->cloudscraper)
+2025-07-27T18:12:23.9546169Z   Downloading charset_normalizer-3.4.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+2025-07-27T18:12:23.9966052Z Collecting urllib3<3,>=1.21.1 (from requests>=2.9.2->cloudscraper)
+2025-07-27T18:12:24.0107082Z   Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+2025-07-27T18:12:24.0466355Z Collecting pyasn1>=0.1.3 (from rsa<5,>=3.1.4->google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:24.0607747Z   Downloading pyasn1-0.6.1-py3-none-any.whl.metadata (8.4 kB)
+2025-07-27T18:12:24.1552101Z Collecting msgpack<2.0.0,>=0.5.2 (from cachecontrol>=0.14.3->firebase-admin)
+2025-07-27T18:12:24.1696707Z   Downloading msgpack-1.1.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (8.4 kB)
+2025-07-27T18:12:24.2286052Z Collecting google-cloud-core<3.0.0,>=1.4.1 (from google-cloud-firestore>=2.21.0->firebase-admin)
+2025-07-27T18:12:24.2429272Z   Downloading google_cloud_core-2.4.3-py2.py3-none-any.whl.metadata (2.7 kB)
+2025-07-27T18:12:24.3747171Z Collecting protobuf!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<7.0.0,>=3.19.5 (from google-api-core<3.0.0dev,>=2.25.1->google-api-core[grpc]<3.0.0dev,>=2.25.1; platform_python_implementation != "PyPy"->firebase-admin)
+2025-07-27T18:12:24.3888153Z   Downloading protobuf-6.32.0rc1-cp39-abi3-manylinux2014_x86_64.whl.metadata (596 bytes)
+2025-07-27T18:12:24.5070494Z Collecting google-resumable-media<3.0.0,>=2.7.2 (from google-cloud-storage>=3.1.1->firebase-admin)
+2025-07-27T18:12:24.5200188Z   Downloading google_resumable_media-2.7.2-py2.py3-none-any.whl.metadata (2.2 kB)
+2025-07-27T18:12:24.6686976Z Collecting google-crc32c<2.0.0,>=1.1.3 (from google-cloud-storage>=3.1.1->firebase-admin)
+2025-07-27T18:12:24.6829053Z   Downloading google_crc32c-1.7.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.3 kB)
+2025-07-27T18:12:24.9525870Z Collecting cryptography>=3.4.0 (from pyjwt[crypto]>=2.10.1->firebase-admin)
+2025-07-27T18:12:24.9672887Z   Downloading cryptography-45.0.5-cp37-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+2025-07-27T18:12:25.0938311Z Collecting cffi>=1.14 (from cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->firebase-admin)
+2025-07-27T18:12:25.1081967Z   Downloading cffi-1.17.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+2025-07-27T18:12:25.1240419Z Collecting pycparser (from cffi>=1.14->cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->firebase-admin)
+2025-07-27T18:12:25.1383978Z   Downloading pycparser-2.22-py3-none-any.whl.metadata (943 bytes)
+2025-07-27T18:12:25.1724595Z Collecting exceptiongroup>=1.0.2 (from anyio->httpx==0.28.1->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:25.1866929Z   Downloading exceptiongroup-1.3.0-py3-none-any.whl.metadata (6.7 kB)
+2025-07-27T18:12:25.2053317Z Collecting sniffio>=1.1 (from anyio->httpx==0.28.1->httpx[http2]==0.28.1->firebase-admin)
+2025-07-27T18:12:25.2195733Z   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+2025-07-27T18:12:25.2542084Z Downloading cloudscraper-1.2.71-py2.py3-none-any.whl (99 kB)
+2025-07-27T18:12:25.2821470Z Downloading beautifulsoup4-4.13.4-py3-none-any.whl (187 kB)
+2025-07-27T18:12:25.3105580Z Downloading firebase_admin-7.0.0-py3-none-any.whl (136 kB)
+2025-07-27T18:12:25.3279214Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+2025-07-27T18:12:25.3446905Z Downloading google_api_core-2.25.1-py3-none-any.whl (160 kB)
+2025-07-27T18:12:25.3625482Z Downloading google_auth-2.40.3-py2.py3-none-any.whl (216 kB)
+2025-07-27T18:12:25.3933429Z Downloading cachetools-5.5.2-py3-none-any.whl (10 kB)
+2025-07-27T18:12:25.4095218Z Downloading googleapis_common_protos-1.70.0-py3-none-any.whl (294 kB)
+2025-07-27T18:12:25.4295658Z Downloading grpcio-1.74.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (6.2 MB)
+2025-07-27T18:12:25.4825312Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.2/6.2 MB 121.6 MB/s eta 0:00:00
+2025-07-27T18:12:25.4970653Z Downloading grpcio_status-1.74.0-py3-none-any.whl (14 kB)
+2025-07-27T18:12:25.5130500Z Downloading h2-4.2.0-py3-none-any.whl (60 kB)
+2025-07-27T18:12:25.5295050Z Downloading hpack-4.1.0-py3-none-any.whl (34 kB)
+2025-07-27T18:12:25.5458304Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2025-07-27T18:12:25.5621675Z Downloading hyperframe-6.1.0-py3-none-any.whl (13 kB)
+2025-07-27T18:12:25.5788425Z Downloading proto_plus-1.26.1-py3-none-any.whl (50 kB)
+2025-07-27T18:12:25.5952999Z Downloading protobuf-6.31.1-cp39-abi3-manylinux2014_x86_64.whl (321 kB)
+2025-07-27T18:12:25.6124827Z Downloading requests-2.32.4-py3-none-any.whl (64 kB)
+2025-07-27T18:12:25.6300882Z Downloading charset_normalizer-3.4.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (149 kB)
+2025-07-27T18:12:25.6469843Z Downloading idna-3.10-py3-none-any.whl (70 kB)
+2025-07-27T18:12:25.6633051Z Downloading rsa-4.9.1-py3-none-any.whl (34 kB)
+2025-07-27T18:12:25.6792852Z Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+2025-07-27T18:12:25.6958911Z Downloading cachecontrol-0.14.3-py3-none-any.whl (21 kB)
+2025-07-27T18:12:25.7123151Z Downloading msgpack-1.1.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (405 kB)
+2025-07-27T18:12:25.7298797Z Downloading certifi-2025.7.14-py3-none-any.whl (162 kB)
+2025-07-27T18:12:25.7467723Z Downloading google_cloud_firestore-2.21.0-py3-none-any.whl (368 kB)
+2025-07-27T18:12:25.7647040Z Downloading google_cloud_core-2.4.3-py2.py3-none-any.whl (29 kB)
+2025-07-27T18:12:25.7810226Z Downloading google_cloud_storage-3.2.0-py3-none-any.whl (176 kB)
+2025-07-27T18:12:25.8027731Z Downloading google_crc32c-1.7.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (37 kB)
+2025-07-27T18:12:25.8192724Z Downloading google_resumable_media-2.7.2-py2.py3-none-any.whl (81 kB)
+2025-07-27T18:12:25.8356061Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2025-07-27T18:12:25.8518019Z Downloading pyasn1-0.6.1-py3-none-any.whl (83 kB)
+2025-07-27T18:12:25.8683694Z Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+2025-07-27T18:12:25.8852878Z Downloading PyJWT-2.10.1-py3-none-any.whl (22 kB)
+2025-07-27T18:12:25.9018991Z Downloading cryptography-45.0.5-cp37-abi3-manylinux_2_34_x86_64.whl (4.4 MB)
+2025-07-27T18:12:25.9262675Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.4/4.4 MB 196.5 MB/s eta 0:00:00
+2025-07-27T18:12:25.9406203Z Downloading cffi-1.17.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (445 kB)
+2025-07-27T18:12:25.9588427Z Downloading pyparsing-3.2.3-py3-none-any.whl (111 kB)
+2025-07-27T18:12:25.9756152Z Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
+2025-07-27T18:12:25.9919469Z Downloading soupsieve-2.7-py3-none-any.whl (36 kB)
+2025-07-27T18:12:26.0092854Z Downloading typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+2025-07-27T18:12:26.0276632Z Downloading anyio-4.9.0-py3-none-any.whl (100 kB)
+2025-07-27T18:12:26.0511788Z Downloading exceptiongroup-1.3.0-py3-none-any.whl (16 kB)
+2025-07-27T18:12:26.0676284Z Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+2025-07-27T18:12:26.0838254Z Downloading pycparser-2.22-py3-none-any.whl (117 kB)
+2025-07-27T18:12:26.2603107Z Installing collected packages: urllib3, typing-extensions, soupsieve, sniffio, pyparsing, pyjwt, pycparser, pyasn1, protobuf, msgpack, idna, hyperframe, hpack, h11, grpcio, google-crc32c, charset_normalizer, certifi, cachetools, rsa, requests, pyasn1-modules, proto-plus, httpcore, h2, googleapis-common-protos, google-resumable-media, exceptiongroup, cffi, beautifulsoup4, requests-toolbelt, grpcio-status, google-auth, cryptography, cachecontrol, anyio, httpx, google-api-core, cloudscraper, google-cloud-core, google-cloud-storage, google-cloud-firestore, firebase-admin
+2025-07-27T18:12:28.5327171Z 
+2025-07-27T18:12:28.5406412Z Successfully installed anyio-4.9.0 beautifulsoup4-4.13.4 cachecontrol-0.14.3 cachetools-5.5.2 certifi-2025.7.14 cffi-1.17.1 charset_normalizer-3.4.2 cloudscraper-1.2.71 cryptography-45.0.5 exceptiongroup-1.3.0 firebase-admin-7.0.0 google-api-core-2.25.1 google-auth-2.40.3 google-cloud-core-2.4.3 google-cloud-firestore-2.21.0 google-cloud-storage-3.2.0 google-crc32c-1.7.1 google-resumable-media-2.7.2 googleapis-common-protos-1.70.0 grpcio-1.74.0 grpcio-status-1.74.0 h11-0.16.0 h2-4.2.0 hpack-4.1.0 httpcore-1.0.9 httpx-0.28.1 hyperframe-6.1.0 idna-3.10 msgpack-1.1.1 proto-plus-1.26.1 protobuf-6.31.1 pyasn1-0.6.1 pyasn1-modules-0.4.2 pycparser-2.22 pyjwt-2.10.1 pyparsing-3.2.3 requests-2.32.4 requests-toolbelt-1.0.0 rsa-4.9.1 sniffio-1.3.1 soupsieve-2.7 typing-extensions-4.14.1 urllib3-2.5.0
+2025-07-27T18:12:28.8405146Z ##[group]Run echo "***
+2025-07-27T18:12:28.8405526Z [36;1mecho "***[0m
+2025-07-27T18:12:28.8405812Z [36;1m  ***[0m
+2025-07-27T18:12:28.8406110Z [36;1m  ***[0m
+2025-07-27T18:12:28.8406444Z [36;1m  ***[0m
+2025-07-27T18:12:28.8413842Z [36;1m  ***[0m
+2025-07-27T18:12:28.8414303Z [36;1m  ***[0m
+2025-07-27T18:12:28.8414560Z [36;1m  ***[0m
+2025-07-27T18:12:28.8414905Z [36;1m  ***[0m
+2025-07-27T18:12:28.8415215Z [36;1m  ***[0m
+2025-07-27T18:12:28.8415593Z [36;1m  ***[0m
+2025-07-27T18:12:28.8416234Z [36;1m  ***[0m
+2025-07-27T18:12:28.8416500Z [36;1m  ***[0m
+2025-07-27T18:12:28.8416727Z [36;1m***[0m
+2025-07-27T18:12:28.8417011Z [36;1m" > ./key/firebase-service-account.json[0m
+2025-07-27T18:12:28.8446678Z shell: /usr/bin/bash -e ***0***
+2025-07-27T18:12:28.8446970Z env:
+2025-07-27T18:12:28.8447272Z   pythonLocation: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:28.8447753Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib/pkgconfig
+2025-07-27T18:12:28.8448257Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:28.8448907Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:28.8449320Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-27T18:12:28.8449752Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib
+2025-07-27T18:12:28.8450220Z ##[endgroup]
+2025-07-27T18:12:28.8519580Z /home/runner/work/_temp/514d3d71-ff08-4cff-a500-2dc7d71fc284.sh: line 5: ./key/firebase-service-account.json: No such file or directory
+2025-07-27T18:12:28.8529763Z ##[error]Process completed with exit code 1.
+2025-07-27T18:12:28.8627867Z Post job cleanup.
+2025-07-27T18:12:28.9548152Z [command]/usr/bin/git version
+2025-07-27T18:12:28.9583622Z git version 2.50.1
+2025-07-27T18:12:28.9627384Z Temporarily overriding HOME='/home/runner/work/_temp/1fbbfa6c-7712-458b-912f-833dc04977b5' before making global git config changes
+2025-07-27T18:12:28.9628843Z Adding repository directory to the temporary git global config as a safe directory
+2025-07-27T18:12:28.9634275Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:12:28.9670332Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-07-27T18:12:28.9702620Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-07-27T18:12:28.9912835Z fatal: No url found for submodule path 'frontend' in .gitmodules
+2025-07-27T18:12:28.9954538Z ##[warning]The process '/usr/bin/git' failed with exit code 128
+2025-07-27T18:12:29.0037094Z Cleaning up orphan processes
