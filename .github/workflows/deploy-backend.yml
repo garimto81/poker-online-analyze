@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'backend/**' # Only run when changes are made in the backend directory
+      - 'backend/**'
+  workflow_dispatch: # 수동 실행을 허용 # Only run when changes are made in the backend directory
 
 jobs:
   deploy:
