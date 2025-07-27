@@ -25,9 +25,7 @@ jobs:
       - name: Create Firebase Service Account Key File
         run: |
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" > ./key/firebase-service-account.json
-        working-directory: ./poker-online-analyze
 
       - name: Run PokerScout Crawler
         run: python crawlers/poker_scout_crawler.py
-        working-directory: ./poker-online-analyze
         
