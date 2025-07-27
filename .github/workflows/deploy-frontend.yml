@@ -34,9 +34,3 @@ jobs:
       - name: Deploy to Vercel
         run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: ./frontend
-        env:
-          # Vercel 프로젝트 ID와 조직 ID는 Vercel 대시보드에서 확인할 수 있습니다.
-          # Vercel CLI를 통해 프로젝트를 연결하면 자동으로 .vercel/project.json 파일에 기록됩니다.
-          # GitHub Actions에서는 이 환경 변수를 명시적으로 설정해야 할 수 있습니다.
-          # VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }} # 필요시 주석 해제 및 설정
-          # VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }} # 필요시 주석 해제 및 설정
