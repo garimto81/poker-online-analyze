@@ -1,0 +1,154 @@
+﻿2025-07-27T18:51:54.3566628Z Current runner version: '2.326.0'
+2025-07-27T18:51:54.3590832Z ##[group]Runner Image Provisioner
+2025-07-27T18:51:54.3591697Z Hosted Compute Agent
+2025-07-27T18:51:54.3592256Z Version: 20250711.363
+2025-07-27T18:51:54.3592856Z Commit: 6785254374ce925a23743850c1cb91912ce5c14c
+2025-07-27T18:51:54.3593559Z Build Date: 2025-07-11T20:04:25Z
+2025-07-27T18:51:54.3594177Z ##[endgroup]
+2025-07-27T18:51:54.3594793Z ##[group]Operating System
+2025-07-27T18:51:54.3595366Z Ubuntu
+2025-07-27T18:51:54.3595848Z 24.04.2
+2025-07-27T18:51:54.3596363Z LTS
+2025-07-27T18:51:54.3596805Z ##[endgroup]
+2025-07-27T18:51:54.3597316Z ##[group]Runner Image
+2025-07-27T18:51:54.3598011Z Image: ubuntu-24.04
+2025-07-27T18:51:54.3598622Z Version: 20250720.1.0
+2025-07-27T18:51:54.3599595Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250720.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-07-27T18:51:54.3601177Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250720.1
+2025-07-27T18:51:54.3602175Z ##[endgroup]
+2025-07-27T18:51:54.3603310Z ##[group]GITHUB_TOKEN Permissions
+2025-07-27T18:51:54.3605389Z Contents: read
+2025-07-27T18:51:54.3605916Z Metadata: read
+2025-07-27T18:51:54.3606895Z Packages: read
+2025-07-27T18:51:54.3607652Z ##[endgroup]
+2025-07-27T18:51:54.3609740Z Secret source: Actions
+2025-07-27T18:51:54.3610534Z Prepare workflow directory
+2025-07-27T18:51:54.3941868Z Prepare all required actions
+2025-07-27T18:51:54.3980082Z Getting action download info
+2025-07-27T18:51:54.7098363Z ##[group]Download immutable action package 'actions/checkout@v4'
+2025-07-27T18:51:54.7099451Z Version: 4.2.2
+2025-07-27T18:51:54.7100414Z Digest: sha256:ccb2698953eaebd21c7bf6268a94f9c26518a7e38e27e0b83c1fe1ad049819b1
+2025-07-27T18:51:54.7101635Z Source commit SHA: 11bd71901bbe5b1630ceea73d27597364c9af683
+2025-07-27T18:51:54.7102354Z ##[endgroup]
+2025-07-27T18:51:54.8035944Z ##[group]Download immutable action package 'actions/setup-node@v4'
+2025-07-27T18:51:54.8036823Z Version: 4.4.0
+2025-07-27T18:51:54.8037942Z Digest: sha256:9427cefe82346e992fb5b949e3569b39d537ae41aa3086483b14eceebfc16bc1
+2025-07-27T18:51:54.8038922Z Source commit SHA: 49933ea5288caeca8642d1e84afbd3f7d6820020
+2025-07-27T18:51:54.8039724Z ##[endgroup]
+2025-07-27T18:51:55.0272964Z Complete job name: deploy
+2025-07-27T18:51:55.1021204Z ##[group]Run actions/checkout@v4
+2025-07-27T18:51:55.1022028Z with:
+2025-07-27T18:51:55.1022472Z   repository: garimto81/poker-online-analyze
+2025-07-27T18:51:55.1023170Z   token: ***
+2025-07-27T18:51:55.1023564Z   ssh-strict: true
+2025-07-27T18:51:55.1023957Z   ssh-user: git
+2025-07-27T18:51:55.1024368Z   persist-credentials: true
+2025-07-27T18:51:55.1024808Z   clean: true
+2025-07-27T18:51:55.1025216Z   sparse-checkout-cone-mode: true
+2025-07-27T18:51:55.1025695Z   fetch-depth: 1
+2025-07-27T18:51:55.1026092Z   fetch-tags: false
+2025-07-27T18:51:55.1026499Z   show-progress: true
+2025-07-27T18:51:55.1026901Z   lfs: false
+2025-07-27T18:51:55.1027279Z   submodules: false
+2025-07-27T18:51:55.1027847Z   set-safe-directory: true
+2025-07-27T18:51:55.1028522Z ##[endgroup]
+2025-07-27T18:51:55.2079309Z Syncing repository: garimto81/poker-online-analyze
+2025-07-27T18:51:55.2081214Z ##[group]Getting Git version info
+2025-07-27T18:51:55.2082092Z Working directory is '/home/runner/work/poker-online-analyze/poker-online-analyze'
+2025-07-27T18:51:55.2083169Z [command]/usr/bin/git version
+2025-07-27T18:51:55.2134251Z git version 2.50.1
+2025-07-27T18:51:55.2160038Z ##[endgroup]
+2025-07-27T18:51:55.2173635Z Temporarily overriding HOME='/home/runner/work/_temp/84b3b2b7-9427-4dc3-b8b1-9742eb8096f9' before making global git config changes
+2025-07-27T18:51:55.2174988Z Adding repository directory to the temporary git global config as a safe directory
+2025-07-27T18:51:55.2179107Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:51:55.2232711Z Deleting the contents of '/home/runner/work/poker-online-analyze/poker-online-analyze'
+2025-07-27T18:51:55.2235734Z ##[group]Initializing the repository
+2025-07-27T18:51:55.2240228Z [command]/usr/bin/git init /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:51:55.2300733Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-07-27T18:51:55.2302339Z hint: is subject to change. To configure the initial branch name to use in all
+2025-07-27T18:51:55.2303802Z hint: of your new repositories, which will suppress this warning, call:
+2025-07-27T18:51:55.2304873Z hint:
+2025-07-27T18:51:55.2305515Z hint: 	git config --global init.defaultBranch <name>
+2025-07-27T18:51:55.2306232Z hint:
+2025-07-27T18:51:55.2306771Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-07-27T18:51:55.2308066Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-07-27T18:51:55.2308753Z hint:
+2025-07-27T18:51:55.2309163Z hint: 	git branch -m <name>
+2025-07-27T18:51:55.2309860Z hint:
+2025-07-27T18:51:55.2310612Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-07-27T18:51:55.2311760Z Initialized empty Git repository in /home/runner/work/poker-online-analyze/poker-online-analyze/.git/
+2025-07-27T18:51:55.2314912Z [command]/usr/bin/git remote add origin https://github.com/garimto81/poker-online-analyze
+2025-07-27T18:51:55.2344853Z ##[endgroup]
+2025-07-27T18:51:55.2345602Z ##[group]Disabling automatic garbage collection
+2025-07-27T18:51:55.2348885Z [command]/usr/bin/git config --local gc.auto 0
+2025-07-27T18:51:55.2375319Z ##[endgroup]
+2025-07-27T18:51:55.2376004Z ##[group]Setting up auth
+2025-07-27T18:51:55.2381945Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-07-27T18:51:55.2410448Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-07-27T18:51:55.2679873Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-07-27T18:51:55.2709923Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-07-27T18:51:55.2924312Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-07-27T18:51:55.2957988Z ##[endgroup]
+2025-07-27T18:51:55.2959241Z ##[group]Fetching the repository
+2025-07-27T18:51:55.2975673Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +33abd4077037744e15838e815b6ae40d3cbee7d9:refs/remotes/origin/main
+2025-07-27T18:51:55.5246176Z From https://github.com/garimto81/poker-online-analyze
+2025-07-27T18:51:55.5247787Z  * [new ref]         33abd4077037744e15838e815b6ae40d3cbee7d9 -> origin/main
+2025-07-27T18:51:55.5271416Z ##[endgroup]
+2025-07-27T18:51:55.5272136Z ##[group]Determining the checkout info
+2025-07-27T18:51:55.5273510Z ##[endgroup]
+2025-07-27T18:51:55.5278717Z [command]/usr/bin/git sparse-checkout disable
+2025-07-27T18:51:55.5316593Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-07-27T18:51:55.5345242Z ##[group]Checking out the ref
+2025-07-27T18:51:55.5349590Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2025-07-27T18:51:55.5418329Z Switched to a new branch 'main'
+2025-07-27T18:51:55.5421292Z branch 'main' set up to track 'origin/main'.
+2025-07-27T18:51:55.5426995Z ##[endgroup]
+2025-07-27T18:51:55.5459761Z [command]/usr/bin/git log -1 --format=%H
+2025-07-27T18:51:55.5481405Z 33abd4077037744e15838e815b6ae40d3cbee7d9
+2025-07-27T18:51:55.5715572Z ##[group]Run actions/setup-node@v4
+2025-07-27T18:51:55.5716117Z with:
+2025-07-27T18:51:55.5716495Z   node-version: 20
+2025-07-27T18:51:55.5716886Z   always-auth: false
+2025-07-27T18:51:55.5717288Z   check-latest: false
+2025-07-27T18:51:55.5718044Z   token: ***
+2025-07-27T18:51:55.5718423Z ##[endgroup]
+2025-07-27T18:51:55.7448913Z Found in cache @ /opt/hostedtoolcache/node/20.19.4/x64
+2025-07-27T18:51:55.7453951Z ##[group]Environment details
+2025-07-27T18:51:57.9822241Z node: v20.19.4
+2025-07-27T18:51:57.9822779Z npm: 10.8.2
+2025-07-27T18:51:57.9823126Z yarn: 1.22.22
+2025-07-27T18:51:57.9824041Z ##[endgroup]
+2025-07-27T18:51:57.9925621Z ##[group]Run npm install --global vercel@latest
+2025-07-27T18:51:57.9926097Z [36;1mnpm install --global vercel@latest[0m
+2025-07-27T18:51:58.0010340Z shell: /usr/bin/bash -e {0}
+2025-07-27T18:51:58.0010657Z ##[endgroup]
+2025-07-27T18:52:07.0906632Z npm warn deprecated path-match@1.2.4: This package is archived and no longer maintained. For support, visit https://github.com/expressjs/express/discussions
+2025-07-27T18:52:08.1407110Z 
+2025-07-27T18:52:08.1419100Z added 236 packages in 10s
+2025-07-27T18:52:08.1420135Z 
+2025-07-27T18:52:08.1423959Z 26 packages are looking for funding
+2025-07-27T18:52:08.1425428Z   run `npm fund` for details
+2025-07-27T18:52:08.1688696Z ##[group]Run npm install
+2025-07-27T18:52:08.1689234Z [36;1mnpm install[0m
+2025-07-27T18:52:08.1728156Z shell: /usr/bin/bash -e {0}
+2025-07-27T18:52:08.1728602Z ##[endgroup]
+2025-07-27T18:52:08.5530545Z npm error code ENOENT
+2025-07-27T18:52:08.5532252Z npm error syscall open
+2025-07-27T18:52:08.5533272Z npm error path /home/runner/work/poker-online-analyze/poker-online-analyze/frontend/package.json
+2025-07-27T18:52:08.5534651Z npm error errno -2
+2025-07-27T18:52:08.5536903Z npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/home/runner/work/poker-online-analyze/poker-online-analyze/frontend/package.json'
+2025-07-27T18:52:08.5538602Z npm error enoent This is related to npm not being able to find a file.
+2025-07-27T18:52:08.5539960Z npm error enoent
+2025-07-27T18:52:08.5548039Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2025-07-27T18_52_08_238Z-debug-0.log
+2025-07-27T18:52:08.5613353Z ##[error]Process completed with exit code 254.
+2025-07-27T18:52:08.5734290Z Post job cleanup.
+2025-07-27T18:52:08.6784343Z [command]/usr/bin/git version
+2025-07-27T18:52:08.6823182Z git version 2.50.1
+2025-07-27T18:52:08.6875935Z Temporarily overriding HOME='/home/runner/work/_temp/bcdb7c35-1d3a-4d87-8f8f-6a45e0048086' before making global git config changes
+2025-07-27T18:52:08.6877798Z Adding repository directory to the temporary git global config as a safe directory
+2025-07-27T18:52:08.6883390Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:52:08.6924239Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-07-27T18:52:08.6959271Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-07-27T18:52:08.7189475Z fatal: No url found for submodule path 'frontend' in .gitmodules
+2025-07-27T18:52:08.7231050Z ##[warning]The process '/usr/bin/git' failed with exit code 128
+2025-07-27T18:52:08.7315016Z Cleaning up orphan processes

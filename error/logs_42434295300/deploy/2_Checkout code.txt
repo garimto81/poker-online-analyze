@@ -1,0 +1,69 @@
+﻿2025-07-27T18:51:55.1021177Z ##[group]Run actions/checkout@v4
+2025-07-27T18:51:55.1022021Z with:
+2025-07-27T18:51:55.1022469Z   repository: garimto81/poker-online-analyze
+2025-07-27T18:51:55.1023167Z   token: ***
+2025-07-27T18:51:55.1023562Z   ssh-strict: true
+2025-07-27T18:51:55.1023954Z   ssh-user: git
+2025-07-27T18:51:55.1024364Z   persist-credentials: true
+2025-07-27T18:51:55.1024805Z   clean: true
+2025-07-27T18:51:55.1025213Z   sparse-checkout-cone-mode: true
+2025-07-27T18:51:55.1025692Z   fetch-depth: 1
+2025-07-27T18:51:55.1026089Z   fetch-tags: false
+2025-07-27T18:51:55.1026496Z   show-progress: true
+2025-07-27T18:51:55.1026898Z   lfs: false
+2025-07-27T18:51:55.1027276Z   submodules: false
+2025-07-27T18:51:55.1027843Z   set-safe-directory: true
+2025-07-27T18:51:55.1028517Z ##[endgroup]
+2025-07-27T18:51:55.2079255Z Syncing repository: garimto81/poker-online-analyze
+2025-07-27T18:51:55.2081198Z ##[group]Getting Git version info
+2025-07-27T18:51:55.2082024Z Working directory is '/home/runner/work/poker-online-analyze/poker-online-analyze'
+2025-07-27T18:51:55.2083165Z [command]/usr/bin/git version
+2025-07-27T18:51:55.2134229Z git version 2.50.1
+2025-07-27T18:51:55.2160022Z ##[endgroup]
+2025-07-27T18:51:55.2173615Z Temporarily overriding HOME='/home/runner/work/_temp/84b3b2b7-9427-4dc3-b8b1-9742eb8096f9' before making global git config changes
+2025-07-27T18:51:55.2174983Z Adding repository directory to the temporary git global config as a safe directory
+2025-07-27T18:51:55.2179092Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:51:55.2232685Z Deleting the contents of '/home/runner/work/poker-online-analyze/poker-online-analyze'
+2025-07-27T18:51:55.2235717Z ##[group]Initializing the repository
+2025-07-27T18:51:55.2240210Z [command]/usr/bin/git init /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-27T18:51:55.2300706Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-07-27T18:51:55.2302297Z hint: is subject to change. To configure the initial branch name to use in all
+2025-07-27T18:51:55.2303794Z hint: of your new repositories, which will suppress this warning, call:
+2025-07-27T18:51:55.2304864Z hint:
+2025-07-27T18:51:55.2305508Z hint: 	git config --global init.defaultBranch <name>
+2025-07-27T18:51:55.2306228Z hint:
+2025-07-27T18:51:55.2306767Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-07-27T18:51:55.2308060Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-07-27T18:51:55.2308750Z hint:
+2025-07-27T18:51:55.2309153Z hint: 	git branch -m <name>
+2025-07-27T18:51:55.2309847Z hint:
+2025-07-27T18:51:55.2310608Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-07-27T18:51:55.2311756Z Initialized empty Git repository in /home/runner/work/poker-online-analyze/poker-online-analyze/.git/
+2025-07-27T18:51:55.2314886Z [command]/usr/bin/git remote add origin https://github.com/garimto81/poker-online-analyze
+2025-07-27T18:51:55.2344835Z ##[endgroup]
+2025-07-27T18:51:55.2345598Z ##[group]Disabling automatic garbage collection
+2025-07-27T18:51:55.2348869Z [command]/usr/bin/git config --local gc.auto 0
+2025-07-27T18:51:55.2375301Z ##[endgroup]
+2025-07-27T18:51:55.2376000Z ##[group]Setting up auth
+2025-07-27T18:51:55.2381929Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-07-27T18:51:55.2410425Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-07-27T18:51:55.2679839Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-07-27T18:51:55.2709894Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-07-27T18:51:55.2923919Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-07-27T18:51:55.2957963Z ##[endgroup]
+2025-07-27T18:51:55.2959221Z ##[group]Fetching the repository
+2025-07-27T18:51:55.2975645Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +33abd4077037744e15838e815b6ae40d3cbee7d9:refs/remotes/origin/main
+2025-07-27T18:51:55.5246119Z From https://github.com/garimto81/poker-online-analyze
+2025-07-27T18:51:55.5247772Z  * [new ref]         33abd4077037744e15838e815b6ae40d3cbee7d9 -> origin/main
+2025-07-27T18:51:55.5271394Z ##[endgroup]
+2025-07-27T18:51:55.5272132Z ##[group]Determining the checkout info
+2025-07-27T18:51:55.5273501Z ##[endgroup]
+2025-07-27T18:51:55.5278692Z [command]/usr/bin/git sparse-checkout disable
+2025-07-27T18:51:55.5316565Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-07-27T18:51:55.5345219Z ##[group]Checking out the ref
+2025-07-27T18:51:55.5349536Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2025-07-27T18:51:55.5418304Z Switched to a new branch 'main'
+2025-07-27T18:51:55.5421270Z branch 'main' set up to track 'origin/main'.
+2025-07-27T18:51:55.5426974Z ##[endgroup]
+2025-07-27T18:51:55.5459734Z [command]/usr/bin/git log -1 --format=%H
+2025-07-27T18:51:55.5481381Z 33abd4077037744e15838e815b6ae40d3cbee7d9

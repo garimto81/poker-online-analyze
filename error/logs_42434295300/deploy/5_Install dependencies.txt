@@ -1,0 +1,13 @@
+﻿2025-07-27T18:52:08.1688665Z ##[group]Run npm install
+2025-07-27T18:52:08.1689226Z [36;1mnpm install[0m
+2025-07-27T18:52:08.1728139Z shell: /usr/bin/bash -e {0}
+2025-07-27T18:52:08.1728597Z ##[endgroup]
+2025-07-27T18:52:08.5530500Z npm error code ENOENT
+2025-07-27T18:52:08.5532243Z npm error syscall open
+2025-07-27T18:52:08.5533265Z npm error path /home/runner/work/poker-online-analyze/poker-online-analyze/frontend/package.json
+2025-07-27T18:52:08.5534644Z npm error errno -2
+2025-07-27T18:52:08.5536894Z npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/home/runner/work/poker-online-analyze/poker-online-analyze/frontend/package.json'
+2025-07-27T18:52:08.5538594Z npm error enoent This is related to npm not being able to find a file.
+2025-07-27T18:52:08.5539954Z npm error enoent
+2025-07-27T18:52:08.5548025Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2025-07-27T18_52_08_238Z-debug-0.log
+2025-07-27T18:52:08.5613270Z ##[error]Process completed with exit code 254.

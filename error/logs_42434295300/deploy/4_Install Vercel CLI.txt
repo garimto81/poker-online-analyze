@@ -1,0 +1,10 @@
+﻿2025-07-27T18:51:57.9925600Z ##[group]Run npm install --global vercel@latest
+2025-07-27T18:51:57.9926092Z [36;1mnpm install --global vercel@latest[0m
+2025-07-27T18:51:58.0010308Z shell: /usr/bin/bash -e {0}
+2025-07-27T18:51:58.0010653Z ##[endgroup]
+2025-07-27T18:52:07.0906534Z npm warn deprecated path-match@1.2.4: This package is archived and no longer maintained. For support, visit https://github.com/expressjs/express/discussions
+2025-07-27T18:52:08.1407014Z 
+2025-07-27T18:52:08.1419058Z added 236 packages in 10s
+2025-07-27T18:52:08.1420115Z 
+2025-07-27T18:52:08.1423932Z 26 packages are looking for funding
+2025-07-27T18:52:08.1425406Z   run `npm fund` for details
