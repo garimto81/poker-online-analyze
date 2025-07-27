@@ -1,0 +1,36 @@
+name: Scheduled PokerScout Crawler
+
+on:
+  schedule:
+    # 매일 자정 (UTC)에 실행
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 수동 실행을 허용
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9' # 크롤러에 필요한 Python 버전
+
+      - name: Install dependencies
+        run: |
+          pip install cloudscraper beautifulsoup4 firebase-admin
+
+      - name: Create Firebase Service Account Key File
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" > ./key/firebase-service-account.json
+        working-directory: ./poker-online-analyze
+
+      - name: Run PokerScout Crawler
+        run: python crawlers/poker_scout_crawler.py
+        working-directory: ./poker-online-analyze
+        env:
+          # 크롤러 스크립트에서 SERVICE_ACCOUNT_KEY_PATH를 이 파일로 설정해야 합니다.
+          # 현재 스크립트에는 하드코딩되어 있으므로, 이 부분을 수정해야 합니다.
+          # SERVICE_ACCOUNT_KEY_PATH: ./key/firebase-service-account.json

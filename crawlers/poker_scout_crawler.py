@@ -16,7 +16,7 @@ from firebase_admin import firestore
 
 # Firebase 서비스 계정 키 파일 경로
 # 이 경로는 사용자님이 제공한 경로입니다.
-SERVICE_ACCOUNT_KEY_PATH = r"E:\claude-code\poker-online-analyze\key\poker-online-analyze-firebase-adminsdk-fbsvc-05f1f85997.json"
+SERVICE_ACCOUNT_KEY_PATH = "./key/firebase-service-account.json"
 
 # Firebase 앱 초기화
 try:
@@ -41,7 +41,7 @@ def crawl_all_pokerscout_sites():
     print(f"크롤링 시작 시간: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     
     try:
-        response = scraper.get('https://www.pokerscout.com', timeout=30)
+        response = scraper.get('https://www.pokerscout.com', timeout=20)
         response.raise_for_status()
         
         print(f"응답 코드: {response.status_code}")
