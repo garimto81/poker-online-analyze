@@ -13,22 +13,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          path: ./
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Use a recent Node.js version
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./frontend
+        working-directory: frontend
 
       - name: Run tests
         run: npm test
-        working-directory: ./frontend
+        working-directory: frontend
 
       - name: Build project
         run: npm run build
-        working-directory: ./frontend
+        working-directory: frontend
