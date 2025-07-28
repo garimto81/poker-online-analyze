@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>온라인 포커 트래픽 스카우트 (디자인 개선)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK 추가 -->
+    <script type="module">
+        // Firebase v11+ (modular)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, collectionGroup, onSnapshot, query, where, orderBy, Timestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase 설정 ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7BfA_GHmTy8l-51-_FPcenbw9DhtnKBQ",
+            authDomain: "poker-online-analyze.firebaseapp.com",
+            projectId: "poker-online-analyze",
+            storageBucket: "poker-online-analyze.firebasestorage.app",
+            messagingSenderId: "384594354579",
+            appId: "1:384594354579:web:78e8b7b8bca6af5b55c866",
+        };
+
+        // Firebase 앱 초기화
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI 요소
+        const tableContainer = document.getElementById('table-container');
+        const tableLoadingSpinner = document.getElementById('table-loading-spinner');
+        const pokerDataBody = document.getElementById('poker-data-body');
+        const chartSection = document.getElementById('chart-section');
+        const errorContainer = document.getElementById('error-container');
+
+        const chartMetas = [
+            { id: 'chart-players-online', metric: 'players_online', label: '온라인 플레이어' },
+            { id: 'chart-cash-players', metric: 'cash_players', label: '캐시 플레이어' },
+            { id: 'chart-peak-24h', metric: 'peak_24h', label: '24시간 최고' },
+            { id: 'chart-seven-day-avg', metric: 'seven_day_avg', label: '7일 평균' }
+        ];
+
+        let chartInstances = {};
+
+        // --- 색상 관리 로직 ---
+        const siteColorMap = new Map();
+        // 새롭고 세련된 색상 팔레트로 변경
+        const colorPalette = [
+            '#54a0ff', '#22a6b3', '#ff6b6b', '#feca57', '#1dd1a1', 
+            '#ff9f43', '#5f27cd', '#ffb8b8', '#576574', '#c8d6e5'
+        ];
+        let colorIndex = 0;
+
+        function getSiteColor(siteName) {
+            if (!siteColorMap.has(siteName)) {
+                if (colorIndex < colorPalette.length) {
+                    siteColorMap.set(siteName, colorPalette[colorIndex]);
+                    colorIndex++;
+                } else {
+                    let hash = 0;
+                    for (let i = 0; i < siteName.length; i++) {
+                        hash = siteName.charCodeAt(i) + ((hash << 5) - hash);
+                    }
+                    const color = `hsl(${hash % 360}, 70%, 60%)`;
+                    siteColorMap.set(siteName, color);
+                }
+            }
+            return siteColorMap.get(siteName);
+        }
+        // --- 색상 관리 로직 끝 ---
+
+        // 모든 차트를 렌더링하는 함수
+        function renderAllCharts(historicalData, top10sByMetric) {
+            chartMetas.forEach(meta => {
+                const canvas = document.getElementById(meta.id);
+                const spinner = document.getElementById(`${meta.id}-spinner`);
+                if (!canvas) return;
+
+                const topSiteNamesForMetric = top10sByMetric[meta.metric].map(s => s.site_name);
+
+                const datasets = topSiteNamesForMetric.map((siteName) => {
+                    const siteData = historicalData.sites[siteName]?.[meta.metric];
+                    if (!siteData) return null;
+
+                    const color = getSiteColor(siteName);
+                    
+                    return {
+                        label: siteName,
+                        data: historicalData.labels.map(label => {
+                            const dataPoint = siteData.find(d => d.x === label);
+                            return dataPoint ? dataPoint.y : null;
+                        }),
+                        borderColor: color,
+                        backgroundColor: color + '33',
+                        tension: 0.1,
+                        spanGaps: true,
+                    };
+                }).filter(ds => ds !== null);
+
+                if (chartInstances[meta.id]) {
+                    chartInstances[meta.id].destroy();
+                }
+
+                chartInstances[meta.id] = new Chart(canvas, {
+                    type: 'line',
+                    data: { labels: historicalData.labels, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        color: '#e5e7eb',
+                        scales: {
+                            x: { type: 'time', time: { unit: 'day', tooltipFormat: 'yyyy-MM-dd' }, ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                            y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }
+                        },
+                        plugins: {
+                            legend: { 
+                                display: true, 
+                                position: 'bottom', 
+                                labels: { 
+                                    color: '#d1d5db', 
+                                    boxWidth: 12, 
+                                    padding: 20,
+                                    usePointStyle: true, // 범례 아이콘을 원형으로 변경
+                                    pointStyle: 'circle'
+                                } 
+                            },
+                            tooltip: { mode: 'index', intersect: false, backgroundColor: '#1f2937', titleColor: '#f9fafb', bodyColor: '#d1d5db' }
+                        }
+                    }
+                });
+                spinner.style.display = 'none';
+                canvas.style.display = 'block';
+            });
+        }
+        
+        // 과거 데이터 조회 및 처리 함수
+        async function fetchChartData(top10sByMetric) {
+            chartSection.style.display = 'block';
+
+            const allSiteNames = new Set();
+            Object.values(top10sByMetric).forEach(list => {
+                list.forEach(site => allSiteNames.add(site.site_name));
+            });
+            const uniqueSiteNames = Array.from(allSiteNames);
+
+            uniqueSiteNames.forEach(siteName => getSiteColor(siteName));
+
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const thirtyDaysAgoTimestamp = Timestamp.fromDate(thirtyDaysAgo);
+
+            const allSitesData = {};
+            const dateLabels = new Set();
+
+            for (const siteName of uniqueSiteNames) {
+                const siteStatsRef = collection(db, 'sites', siteName, 'daily_stats');
+                const q = query(siteStatsRef, where('extracted_at', '>=', thirtyDaysAgoTimestamp), orderBy('extracted_at', 'asc'));
+                
+                const querySnapshot = await getDocs(q);
+                const processedSiteData = { players_online: [], cash_players: [], peak_24h: [], seven_day_avg: [] };
+
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const dateStr = data.extracted_at.toDate().toISOString().split('T')[0];
+                    dateLabels.add(dateStr);
+                    
+                    processedSiteData.players_online.push({x: dateStr, y: data.players_online});
+                    processedSiteData.cash_players.push({x: dateStr, y: data.cash_players});
+                    processedSiteData.peak_24h.push({x: dateStr, y: data.peak_24h});
+                    processedSiteData.seven_day_avg.push({x: dateStr, y: data.seven_day_avg});
+                });
+                allSitesData[siteName] = processedSiteData;
+            }
+
+            const historicalData = {
+                labels: Array.from(dateLabels).sort(),
+                sites: allSitesData
+            };
+
+            renderAllCharts(historicalData, top10sByMetric);
+        }
+
+        // 실시간 테이블 데이터 렌더링 함수
+        function renderTable(data) {
+            pokerDataBody.innerHTML = '';
+            if (data.length === 0) {
+                 pokerDataBody.innerHTML = `<tr><td colspan="5" class="table-cell text-gray-400">오늘의 데이터를 찾을 수 없습니다.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const rankBadgeClass = item.rank === 1 ? 'rank-1' : item.rank === 2 ? 'rank-2' : item.rank === 3 ? 'rank-3' : 'rank-default';
+                const row = `
+                    <tr class="hover:bg-gray-800/50 transition-colors duration-200">
+                        <td class="table-cell"><span class="rank-badge ${rankBadgeClass}">${item.rank}</span></td>
+                        <td class="table-cell text-left font-semibold text-white">${item.site_name}</td>
+                        <td class="table-cell text-lg font-bold text-indigo-400">${(item.players_online || 0).toLocaleString()}</td>
+                        <td class="table-cell text-gray-300">${(item.cash_players || 0).toLocaleString()}</td>
+                        <td class="table-cell text-gray-300">${(item.peak_24h || 0).toLocaleString()}</td>
+                        <td class="table-cell text-gray-300">${(item.seven_day_avg || 0).toLocaleString()}</td>
+                    </tr>
+                `;
+                pokerDataBody.innerHTML += row;
+            });
+        }
+
+        // 실시간 데이터 수신 함수
+        async function listenToPokerData() {
+            try {
+                await signInAnonymously(auth);
+                const now = new Date();
+                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const startOfTodayTimestamp = Timestamp.fromDate(startOfToday);
+
+                const q = query(
+                    collectionGroup(db, 'daily_stats'), 
+                    where('extracted_at', '>=', startOfTodayTimestamp),
+                    orderBy('extracted_at', 'desc')
+                );
+                
+                let isFirstLoad = true;
+                onSnapshot(q, (snapshot) => {
+                    tableLoadingSpinner.style.display = 'none';
+                    tableContainer.style.display = 'block';
+                    errorContainer.classList.add('hidden');
+
+                    const latestStats = new Map();
+                    snapshot.docs.forEach((doc) => {
+                        const data = doc.data();
+                        const siteName = doc.ref.parent.parent.id;
+                        if (!latestStats.has(siteName)) {
+                            latestStats.set(siteName, { site_name: siteName, ...data });
+                        }
+                    });
+
+                    let sites = Array.from(latestStats.values());
+                    
+                    sites.sort((a, b) => (b.players_online || 0) - (a.players_online || 0));
+                    sites.forEach((site, index) => { site.rank = index + 1; });
+                    renderTable(sites);
+                    
+                    if (isFirstLoad && sites.length > 0) {
+                        isFirstLoad = false;
+                        
+                        const top10sByMetric = {
+                            players_online: [...sites].sort((a,b) => (b.players_online || 0) - (a.players_online || 0)).slice(0, 10),
+                            cash_players: [...sites].sort((a,b) => (b.cash_players || 0) - (a.cash_players || 0)).slice(0, 10),
+                            peak_24h: [...sites].sort((a,b) => (b.peak_24h || 0) - (a.peak_24h || 0)).slice(0, 10),
+                            seven_day_avg: [...sites].sort((a,b) => (b.seven_day_avg || 0) - (a.seven_day_avg || 0)).slice(0, 10),
+                        };
+                        
+                        fetchChartData(top10sByMetric);
+                    } else if (sites.length === 0) {
+                        chartSection.style.display = 'none';
+                    }
+
+                }, (error) => {
+                    console.error("Firestore 데이터 수신 오류:", error);
+                    tableLoadingSpinner.style.display = 'none';
+                    errorContainer.classList.remove('hidden');
+                    errorContainer.innerHTML = `데이터를 불러오는 데 실패했습니다. <br> Firestore 색인이 필요한지 확인해주세요. <br><small class="text-gray-500">${error.message}</small>`;
+                });
+
+            } catch (error) {
+                console.error("Firebase 인증 또는 초기화 오류:", error);
+                tableLoadingSpinner.style.display = 'none';
+                errorContainer.classList.remove('hidden');
+                errorContainer.innerText = "Firebase 연결에 실패했습니다. 설정을 확인하세요.";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', listenToPokerData);
+    </script>
+    <style>
+        body { 
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+        }
+        .table-cell { padding: 0.75rem 1rem; text-align: center; white-space: nowrap; }
+        
+        /* 세련된 랭크 뱃지 스타일 (단일 색상) */
+        .rank-badge { 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem; /* 36px */
+            height: 2.25rem; /* 36px */
+            border-radius: 50%;
+            font-weight: 700;
+            color: white;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .rank-1 { background-color: #feca57; color: #5d4037; } /* Gold */
+        .rank-2 { background-color: #c8d6e5; color: #374151; } /* Silver */
+        .rank-3 { background-color: #ff9f43; color: #5d4037; } /* Bronze */
+        .rank-default { background-color: #576574; } /* Gray */
+
+        /* 차트 컨테이너 스타일 */
+        .chart-card {
+            background-color: #1f2937; /* bg-gray-800 */
+            border-radius: 1rem; /* rounded-2xl */
+            padding: 1.5rem; /* p-6 */
+            border: 1px solid #374151; /* border-gray-700 */
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(84, 160, 255, 0.1), transparent 30%);
+            animation: rotate 6s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body class="text-gray-100">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">온라인 포커 트래픽 스카우트</h1>
+            <p class="text-gray-400 mt-3">실시간 순위 및 과거 데이터 분석</p>
+        </header>
+
+        <main class="space-y-12">
+            <!-- 차트 섹션 -->
+            <section id="chart-section" style="display: none;">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Chart 1: 온라인 플레이어 -->
+                    <div class="chart-card">
+                        <h2 class="text-xl font-semibold mb-4 text-center">온라인 플레이어 (상위 10개)</h2>
+                        <div class="relative h-96">
+                            <div id="chart-players-online-spinner" class="absolute inset-0 flex justify-center items-center bg-gray-800/50 z-10 rounded-lg">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400"></div>
+                            </div>
+                            <canvas id="chart-players-online" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart 2: 캐시 플레이어 -->
+                    <div class="chart-card">
+                        <h2 class="text-xl font-semibold mb-4 text-center">캐시 플레이어 (상위 10개)</h2>
+                        <div class="relative h-96">
+                            <div id="chart-cash-players-spinner" class="absolute inset-0 flex justify-center items-center bg-gray-800/50 z-10 rounded-lg">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400"></div>
+                            </div>
+                            <canvas id="chart-cash-players" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart 3: 24시간 최고 -->
+                    <div class="chart-card">
+                        <h2 class="text-xl font-semibold mb-4 text-center">24시간 최고 (상위 10개)</h2>
+                        <div class="relative h-96">
+                            <div id="chart-peak-24h-spinner" class="absolute inset-0 flex justify-center items-center bg-gray-800/50 z-10 rounded-lg">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400"></div>
+                            </div>
+                            <canvas id="chart-peak-24h" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart 4: 7일 평균 -->
+                    <div class="chart-card">
+                        <h2 class="text-xl font-semibold mb-4 text-center">7일 평균 (상위 10개)</h2>
+                        <div class="relative h-96">
+                            <div id="chart-seven-day-avg-spinner" class="absolute inset-0 flex justify-center items-center bg-gray-800/50 z-10 rounded-lg">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400"></div>
+                            </div>
+                            <canvas id="chart-seven-day-avg" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 테이블 섹션 -->
+            <section id="table-section">
+                 <div class="bg-gray-800 border border-gray-700 rounded-2xl overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold">실시간 순위</h2>
+                    </div>
+                    <div id="table-loading-spinner" class="flex justify-center items-center p-16">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400"></div>
+                    </div>
+                    <div id="error-container" class="hidden text-center p-8 text-red-400 bg-red-900/20"></div>
+                    <div id="table-container" class="overflow-x-auto hidden">
+                        <table class="min-w-full divide-y divide-gray-700">
+                            <thead class="bg-gray-700/50">
+                                <tr>
+                                    <th class="table-cell font-semibold text-sm uppercase tracking-wider">순위</th>
+                                    <th class="table-cell font-semibold text-sm uppercase tracking-wider text-left">사이트</th>
+                                    <th class="table-cell font-semibold text-sm uppercase tracking-wider">온라인 플레이어</th>
+                                    <th class="table-cell font-semibold text-sm uppercase tracking-wider">캐시 플레이어</th>
+                                    <th class="table-cell font-semibold text-sm uppercase tracking-wider">24시간 최고</th>
+                                    <th class="table-cell font-semibold text-sm uppercase tracking-wider">7일 평균</th>
+                                </tr>
+                            </thead>
+                            <tbody id="poker-data-body" class="bg-gray-800 divide-y divide-gray-700"></tbody>
+                        </table>
+                    </div>
+                     <div class="p-4 text-center text-xs text-gray-500 bg-gray-800/50">
+                        참고: 이 데이터는 Firebase Firestore 데이터베이스에서 실시간으로 스트리밍됩니다.
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
