@@ -1,0 +1,10 @@
+﻿2025-07-29T15:23:29.7305498Z Post job cleanup.
+2025-07-29T15:23:29.8251311Z [command]/usr/bin/git version
+2025-07-29T15:23:29.8287276Z git version 2.50.1
+2025-07-29T15:23:29.8331972Z Temporarily overriding HOME='/home/runner/work/_temp/fb0d5cad-ef13-4f3b-8b6e-fcf598a46eda' before making global git config changes
+2025-07-29T15:23:29.8333235Z Adding repository directory to the temporary git global config as a safe directory
+2025-07-29T15:23:29.8338147Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/poker-online-analyze/poker-online-analyze
+2025-07-29T15:23:29.8382276Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-07-29T15:23:29.8416222Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-07-29T15:23:29.8636274Z fatal: No url found for submodule path 'frontend' in .gitmodules
+2025-07-29T15:23:29.8675350Z ##[warning]The process '/usr/bin/git' failed with exit code 128

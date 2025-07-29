@@ -1,0 +1,13 @@
+﻿2025-07-29T15:23:29.6990404Z ##[group]Run python backend/services/poker_crawler.py
+2025-07-29T15:23:29.6990871Z [36;1mpython backend/services/poker_crawler.py[0m
+2025-07-29T15:23:29.7019521Z shell: /usr/bin/bash -e ***0***
+2025-07-29T15:23:29.7019841Z env:
+2025-07-29T15:23:29.7020164Z   pythonLocation: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-29T15:23:29.7020644Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib/pkgconfig
+2025-07-29T15:23:29.7021140Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-29T15:23:29.7021566Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-29T15:23:29.7022009Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+2025-07-29T15:23:29.7022438Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib
+2025-07-29T15:23:29.7022805Z ##[endgroup]
+2025-07-29T15:23:29.7170205Z python: can't open file '/home/runner/work/poker-online-analyze/poker-online-analyze/backend/services/poker_crawler.py': [Errno 2] No such file or directory
+2025-07-29T15:23:29.7199271Z ##[error]Process completed with exit code 2.

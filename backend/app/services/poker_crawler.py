@@ -190,10 +190,41 @@ class LivePokerScoutCrawler:
             json.dump(data, f, ensure_ascii=False, indent=2)
         logger.info(f"💾 결과가 로컬 백업 파일({filename})에 저장되었습니다!")
         
+        # GitHub JSON 백업 파일 생성 (data 폴더에 저장)
+        self.create_github_backup(data, filename)
+        
         # 효율적인 구조로 Firestore에 업로드
         upload_to_firestore_efficiently(data)
         
         return data
+    
+    def create_github_backup(self, data, filename):
+        """
+        GitHub Actions 환경에서 data 폴더에 JSON 백업 파일을 생성합니다.
+        """
+        try:
+            # data 디렉토리 생성 (없는 경우)
+            data_dir = os.path.join(os.getcwd(), 'data')
+            os.makedirs(data_dir, exist_ok=True)
+            
+            # GitHub 백업 파일 경로
+            github_backup_path = os.path.join(data_dir, filename)
+            
+            # JSON 파일 저장
+            with open(github_backup_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            
+            logger.info(f"🔄 GitHub 백업 파일이 생성되었습니다: {github_backup_path}")
+            
+            # 파일 크기와 요약 정보 로깅
+            file_size = os.path.getsize(github_backup_path)
+            logger.info(f"📁 백업 파일 크기: {file_size:,} bytes")
+            logger.info(f"📊 백업된 데이터: {len(data)}개 사이트, {sum(site['players_online'] for site in data):,}명 플레이어")
+            
+        except Exception as e:
+            logger.error(f"GitHub 백업 파일 생성 실패: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
 
 if __name__ == '__main__':
     crawler = LivePokerScoutCrawler()

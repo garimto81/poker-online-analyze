@@ -29,4 +29,23 @@ jobs:
 
       - name: Run PokerScout Crawler
         run: python backend/app/services/poker_crawler.py
+
+      - name: Commit and Push JSON Backup
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # data 폴더가 존재하고 JSON 파일이 있는지 확인
+          if [ -d "data" ] && [ "$(ls -A data/*.json 2>/dev/null)" ]; then
+            git add data/*.json
+            git commit -m "📊 Add crawling result backup - $(date +'%Y-%m-%d %H:%M:%S UTC')
+
+            🤖 Generated with [Claude Code](https://claude.ai/code)
+
+            Co-Authored-By: Claude <noreply@anthropic.com>"
+            git push
+            echo "✅ JSON 백업 파일이 성공적으로 커밋되고 푸시되었습니다."
+          else
+            echo "⚠️ 백업할 JSON 파일을 찾을 수 없습니다."
+          fi
         
