@@ -24,11 +24,9 @@ jobs:
 
       - name: Create Firebase Service Account Key File
         run: |
-          mkdir -p poker-online-analyze/key
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" > ./poker-online-analyze/key/firebase-service-account-key.json
-        working-directory: /home/runner/work/poker-online-analyze
+          mkdir -p key
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" > ./key/firebase-service-account-key.json
 
       - name: Run PokerScout Crawler
-        run: python poker-online-analyze/backend/app/services/poker_crawler.py
-        working-directory: /home/runner/work/poker-online-analyze
+        run: python backend/app/services/poker_crawler.py
         
