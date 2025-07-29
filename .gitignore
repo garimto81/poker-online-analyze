@@ -44,5 +44,6 @@ Thumbs.db
 # Other
 *.db
 *.json
+!data/*.json
 *.csv
 *.log
