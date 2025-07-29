@@ -1,0 +1,407 @@
+[
+  {
+    "site_name": "GGNetwork",
+    "category": "GG_POKER",
+    "players_online": 320458,
+    "cash_players": 13780,
+    "peak_24h": 14244,
+    "seven_day_avg": 10000,
+    "collected_at": "2025-07-29T16:23:21.703859+00:00"
+  },
+  {
+    "site_name": "WPT Global",
+    "category": "COMPETITOR",
+    "players_online": 6465,
+    "cash_players": 3470,
+    "peak_24h": 3470,
+    "seven_day_avg": 2400,
+    "collected_at": "2025-07-29T16:23:21.704188+00:00"
+  },
+  {
+    "site_name": "PaiWangLuo (Bodog)",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 1500,
+    "seven_day_avg": 800,
+    "collected_at": "2025-07-29T16:23:21.704447+00:00"
+  },
+  {
+    "site_name": "Pokerdom",
+    "category": "COMPETITOR",
+    "players_online": 3337,
+    "cash_players": 823,
+    "peak_24h": 1047,
+    "seven_day_avg": 550,
+    "collected_at": "2025-07-29T16:23:21.704706+00:00"
+  },
+  {
+    "site_name": "MPL Poker",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 900,
+    "seven_day_avg": 525,
+    "collected_at": "2025-07-29T16:23:21.704981+00:00"
+  },
+  {
+    "site_name": "iPoker.it",
+    "category": "COMPETITOR",
+    "players_online": 1324,
+    "cash_players": 686,
+    "peak_24h": 957,
+    "seven_day_avg": 425,
+    "collected_at": "2025-07-29T16:23:21.705311+00:00"
+  },
+  {
+    "site_name": "Unibet",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 750,
+    "seven_day_avg": 400,
+    "collected_at": "2025-07-29T16:23:21.705558+00:00"
+  },
+  {
+    "site_name": "888poker",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 609,
+    "peak_24h": 790,
+    "seven_day_avg": 400,
+    "collected_at": "2025-07-29T16:23:21.705799+00:00"
+  },
+  {
+    "site_name": "Chico Poker",
+    "category": "COMPETITOR",
+    "players_online": 1580,
+    "cash_players": 261,
+    "peak_24h": 597,
+    "seven_day_avg": 350,
+    "collected_at": "2025-07-29T16:23:21.706049+00:00"
+  },
+  {
+    "site_name": "GGPoker ON",
+    "category": "GG_POKER",
+    "players_online": 1193,
+    "cash_players": 308,
+    "peak_24h": 309,
+    "seven_day_avg": 350,
+    "collected_at": "2025-07-29T16:23:21.706292+00:00"
+  },
+  {
+    "site_name": "iPoker Europe",
+    "category": "COMPETITOR",
+    "players_online": 1964,
+    "cash_players": 473,
+    "peak_24h": 682,
+    "seven_day_avg": 300,
+    "collected_at": "2025-07-29T16:23:21.706535+00:00"
+  },
+  {
+    "site_name": "WSOP MI",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 130,
+    "peak_24h": 586,
+    "seven_day_avg": 280,
+    "collected_at": "2025-07-29T16:23:21.706776+00:00"
+  },
+  {
+    "site_name": "PokerKlas",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 515,
+    "seven_day_avg": 280,
+    "collected_at": "2025-07-29T16:23:21.707039+00:00"
+  },
+  {
+    "site_name": "Ray.fi",
+    "category": "COMPETITOR",
+    "players_online": 711,
+    "cash_players": 383,
+    "peak_24h": 553,
+    "seven_day_avg": 240,
+    "collected_at": "2025-07-29T16:23:21.707281+00:00"
+  },
+  {
+    "site_name": "PokerStars.it",
+    "category": "COMPETITOR",
+    "players_online": 11145,
+    "cash_players": 34,
+    "peak_24h": 288,
+    "seven_day_avg": 180,
+    "collected_at": "2025-07-29T16:23:21.707524+00:00"
+  },
+  {
+    "site_name": "Gamezy",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 325,
+    "seven_day_avg": 160,
+    "collected_at": "2025-07-29T16:23:21.707765+00:00"
+  },
+  {
+    "site_name": "Pocket52",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 300,
+    "seven_day_avg": 150,
+    "collected_at": "2025-07-29T16:23:21.708029+00:00"
+  },
+  {
+    "site_name": "OK Poker",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 118,
+    "peak_24h": 269,
+    "seven_day_avg": 140,
+    "collected_at": "2025-07-29T16:23:21.708268+00:00"
+  },
+  {
+    "site_name": "A23 Poker",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 250,
+    "seven_day_avg": 120,
+    "collected_at": "2025-07-29T16:23:21.708518+00:00"
+  },
+  {
+    "site_name": "Stretch",
+    "category": "COMPETITOR",
+    "players_online": 347,
+    "cash_players": 30,
+    "peak_24h": 177,
+    "seven_day_avg": 110,
+    "collected_at": "2025-07-29T16:23:21.708770+00:00"
+  },
+  {
+    "site_name": "SkyPoker",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 220,
+    "seven_day_avg": 100,
+    "collected_at": "2025-07-29T16:23:21.709035+00:00"
+  },
+  {
+    "site_name": "PokerStars PA",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 269,
+    "seven_day_avg": 90,
+    "collected_at": "2025-07-29T16:23:21.709292+00:00"
+  },
+  {
+    "site_name": "PokerStars Ontario",
+    "category": "COMPETITOR",
+    "players_online": 55540,
+    "cash_players": 213,
+    "peak_24h": 241,
+    "seven_day_avg": 75,
+    "collected_at": "2025-07-29T16:23:21.709531+00:00"
+  },
+  {
+    "site_name": "PokerMatch",
+    "category": "COMPETITOR",
+    "players_online": 1139,
+    "cash_players": 91,
+    "peak_24h": 119,
+    "seven_day_avg": 60,
+    "collected_at": "2025-07-29T16:23:21.709775+00:00"
+  },
+  {
+    "site_name": "Bunga365",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 110,
+    "seven_day_avg": 45,
+    "collected_at": "2025-07-29T16:23:21.710028+00:00"
+  },
+  {
+    "site_name": "SwC Poker",
+    "category": "COMPETITOR",
+    "players_online": 182,
+    "cash_players": 15,
+    "peak_24h": 50,
+    "seven_day_avg": 24,
+    "collected_at": "2025-07-29T16:23:21.710281+00:00"
+  },
+  {
+    "site_name": "MobilePokerClub",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 55,
+    "seven_day_avg": 20,
+    "collected_at": "2025-07-29T16:23:21.710973+00:00"
+  },
+  {
+    "site_name": "Party Borgata (NJ)",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 18,
+    "peak_24h": 18,
+    "seven_day_avg": 18,
+    "collected_at": "2025-07-29T16:23:21.711254+00:00"
+  },
+  {
+    "site_name": "AconcaguaPoker.es",
+    "category": "COMPETITOR",
+    "players_online": 30,
+    "cash_players": 8,
+    "peak_24h": 50,
+    "seven_day_avg": 14,
+    "collected_at": "2025-07-29T16:23:21.711508+00:00"
+  },
+  {
+    "site_name": "PokerDangal",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 40,
+    "seven_day_avg": 14,
+    "collected_at": "2025-07-29T16:23:21.711756+00:00"
+  },
+  {
+    "site_name": "PartyPoker Europe",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 12,
+    "peak_24h": 12,
+    "seven_day_avg": 14,
+    "collected_at": "2025-07-29T16:23:21.712001+00:00"
+  },
+  {
+    "site_name": "Khelo365",
+    "category": "COMPETITOR",
+    "players_online": 59,
+    "cash_players": 25,
+    "peak_24h": 26,
+    "seven_day_avg": 10,
+    "collected_at": "2025-07-29T16:23:21.712264+00:00"
+  },
+  {
+    "site_name": "Adjarabet",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 25,
+    "seven_day_avg": 10,
+    "collected_at": "2025-07-29T16:23:21.712498+00:00"
+  },
+  {
+    "site_name": "Merge Gaming",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 20,
+    "seven_day_avg": 10,
+    "collected_at": "2025-07-29T16:23:21.712739+00:00"
+  },
+  {
+    "site_name": "BetMGM PA",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 3,
+    "seven_day_avg": 6,
+    "collected_at": "2025-07-29T16:23:21.712983+00:00"
+  },
+  {
+    "site_name": "PokerSaint",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 20,
+    "seven_day_avg": 5,
+    "collected_at": "2025-07-29T16:23:21.713252+00:00"
+  },
+  {
+    "site_name": "Silver Sands",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 0,
+    "peak_24h": 20,
+    "seven_day_avg": 5,
+    "collected_at": "2025-07-29T16:23:21.713500+00:00"
+  },
+  {
+    "site_name": "IDNPoker",
+    "category": "COMPETITOR",
+    "players_online": 9104,
+    "cash_players": 2381,
+    "peak_24h": 2381,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.713739+00:00"
+  },
+  {
+    "site_name": "888poker.ca",
+    "category": "COMPETITOR",
+    "players_online": 0,
+    "cash_players": 12,
+    "peak_24h": 24,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.713975+00:00"
+  },
+  {
+    "site_name": "PeoplesNetwork.it",
+    "category": "COMPETITOR",
+    "players_online": 174,
+    "cash_players": 3,
+    "peak_24h": 3,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.714231+00:00"
+  },
+  {
+    "site_name": "9stacks",
+    "category": "COMPETITOR",
+    "players_online": 5,
+    "cash_players": 0,
+    "peak_24h": 0,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.714456+00:00"
+  },
+  {
+    "site_name": "Aconcagua Poker",
+    "category": "COMPETITOR",
+    "players_online": 2,
+    "cash_players": 0,
+    "peak_24h": 0,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.714689+00:00"
+  },
+  {
+    "site_name": "Blockchain Poker",
+    "category": "COMPETITOR",
+    "players_online": 66,
+    "cash_players": 0,
+    "peak_24h": 0,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.715403+00:00"
+  },
+  {
+    "site_name": "Pokio",
+    "category": "COMPETITOR",
+    "players_online": 3039,
+    "cash_players": 0,
+    "peak_24h": 0,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.716941+00:00"
+  },
+  {
+    "site_name": "Winamax.fr",
+    "category": "COMPETITOR",
+    "players_online": 1605,
+    "cash_players": 0,
+    "peak_24h": 0,
+    "seven_day_avg": 0,
+    "collected_at": "2025-07-29T16:23:21.717197+00:00"
+  }
+]
