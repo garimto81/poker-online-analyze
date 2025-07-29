@@ -30,5 +30,5 @@ jobs:
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" > ./key/firebase-service-account.json
 
       - name: Run PokerScout Crawler
-        run: python crawlers/poker_scout_crawler.py
+        run: python backend/services/poker_crawler.py
         
