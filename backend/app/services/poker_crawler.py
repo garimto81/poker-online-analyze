@@ -20,13 +20,31 @@ from firebase_admin import credentials, firestore
 
 # Firebase Admin SDK 초기화
 try:
-    key_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'key', 'firebase-service-account-key.json'))
+    # GitHub Actions 환경과 로컬 환경 모두 지원
+    possible_key_paths = [
+        # GitHub Actions 환경
+        os.path.join(os.path.dirname(__file__), '..', '..', 'key', 'firebase-service-account-key.json'),
+        # 로컬 환경 (backend 폴더 기준)
+        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'key', 'firebase-service-account-key.json'),
+        # 환경 변수로 지정된 경로
+        os.environ.get('FIREBASE_KEY_PATH', '')
+    ]
+    
+    key_path = None
+    for path in possible_key_paths:
+        if path and os.path.exists(path):
+            key_path = os.path.abspath(path)
+            break
+    
+    if not key_path:
+        raise FileNotFoundError("Firebase 서비스 계정 키 파일을 찾을 수 없습니다.")
+    
     cred = credentials.Certificate(key_path)
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
     db = firestore.client()
     logger = logging.getLogger(__name__)
-    logger.info("Firebase Admin SDK가 성공적으로 초기화되었습니다.")
+    logger.info(f"Firebase Admin SDK가 성공적으로 초기화되었습니다. (키 파일: {key_path})")
 except Exception as e:
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)

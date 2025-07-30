@@ -22,6 +22,9 @@ pip-delete-this-directory.txt
 
 # Firebase Key (IMPORTANT: DO NOT COMMIT SENSITIVE KEYS)
 key/
+**/key/
+firebase-service-account-key.json
+**/firebase-service-account-key.json
 
 # Build artifacts
 build/
@@ -43,7 +46,10 @@ Thumbs.db
 
 # Other
 *.db
+# JSON files - exclude all except specific exceptions
 *.json
+!package.json
+!package-lock.json
+!tsconfig.json
 !data/*.json
 *.csv
-*.log

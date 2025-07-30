@@ -27,11 +27,12 @@ jobs:
 
       - name: Create Firebase Service Account Key File
         run: |
-          mkdir -p key
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > ./key/firebase-service-account-key.json
+          mkdir -p backend/key
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > ./backend/key/firebase-service-account-key.json
 
       - name: Run PokerScout Crawler
-        run: python backend/app/services/poker_crawler.py
+        working-directory: ./backend
+        run: python app/services/poker_crawler.py
 
       - name: Commit and Push JSON Backup
         run: |

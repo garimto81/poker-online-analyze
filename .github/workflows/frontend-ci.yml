@@ -23,13 +23,13 @@ jobs:
         run: ls -R
 
       - name: Install dependencies
-        working-directory: ./poker-online-analyze/frontend
+        working-directory: ./frontend
         run: npm install
 
       - name: Run tests
-        working-directory: ./poker-online-analyze/frontend
+        working-directory: ./frontend
         run: npm test
 
       - name: Build project
-        working-directory: ./poker-online-analyze/frontend
+        working-directory: ./frontend
         run: npm run build

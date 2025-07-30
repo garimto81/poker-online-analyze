@@ -6,11 +6,39 @@
 
 이 프로젝트는 PokerScout.com과 같은 온라인 포커 사이트의 데이터를 매일 자동으로 수집하고, 이를 시각화하여 사용자에게 트렌드 및 비교 분석 정보를 제공하는 것을 목표로 합니다.
 
+## 주요 기능
+
+### 데이터 수집
+- PokerScout.com에서 46개 온라인 포커 사이트의 실시간 데이터 크롤링
+- Firebase Firestore에 일별 트래픽 데이터 저장
+- GitHub Actions를 통한 자동 일일 크롤링 (UTC 자정)
+
+### 데이터 시각화
+- **실시간 순위 테이블**
+  - 현재 온라인 플레이어 수 기준 순위
+  - 모든 컬럼별 정렬 기능 (클릭하여 오름차순/내림차순 전환)
+  - GG Poker 네트워크 사이트 하이라이트
+  
+- **차트 및 그래프**
+  - 상위 10개 사이트의 시장 점유율 파이 차트
+  - 4가지 메트릭의 일별 트렌드 라인 차트:
+    - Players Online (온라인 플레이어)
+    - Cash Players (캐시 게임 플레이어)
+    - 24h Peak (24시간 최고치)
+    - 7-Day Average (7일 평균)
+  - 각 날짜별 시장 점유율 계산 및 표시
+  
+### 사용자 인터페이스
+- 탭 네비게이션 (테이블 뷰 / 차트 뷰)
+- 반응형 디자인
+- 데이터 새로고침 및 크롤링 트리거 버튼
+- 인터랙티브 차트 (호버 툴팁, 범례 클릭)
+
 ## 기술 스택
 
-*   **프론트엔드:** React (TypeScript), Chart.js / Recharts, Tailwind CSS / Bootstrap
+*   **프론트엔드:** React (TypeScript), Chart.js (react-chartjs-2), CSS
 *   **백엔드:** Python (FastAPI), APScheduler
-*   **데이터베이스:** Firebase (Firestore/Realtime Database)
+*   **데이터베이스:** Firebase (Firestore)
 *   **크롤링:** Python (Cloudscraper, BeautifulSoup)
 *   **배포:** Docker, GitHub Actions, Render (백엔드), Vercel (프론트엔드)
 *   **버전 관리:** Git / GitHub
@@ -25,13 +53,14 @@
     cd poker-online-analyze
     ```
 
-2.  **환경 변수 설정:**
-    `backend` 디렉토리에 `.env` 파일을 생성하고 다음 내용을 추가합니다. (Firebase 설정에 따라 변경될 수 있습니다.)
+2.  **Firebase 서비스 계정 키 설정:**
+    - Firebase Console에서 프로젝트 생성 후 서비스 계정 키를 다운로드합니다.
+    - 로컬 개발 환경에서는 `backend/key/` 디렉토리를 생성하고 키 파일을 `firebase-service-account-key.json`으로 저장합니다:
+    ```bash
+    mkdir -p backend/key
+    # firebase-service-account-key.json 파일을 backend/key/ 디렉토리에 복사
     ```
-    DATABASE_URL="postgresql://user:password@host:port/database_name"
-    # Firebase 서비스 계정 키는 GitHub Secrets에 저장하는 것을 권장합니다.
-    # 로컬 테스트 시에는 직접 파일로 생성해야 할 수 있습니다.
-    ```
+    - **주의:** 이 키 파일은 절대 Git에 커밋하지 마세요! `.gitignore`에 이미 포함되어 있습니다.
 
 3.  **Docker Compose 실행 (선택 사항 - 현재 로컬 직접 실행 권장):**
     ```bash
@@ -44,13 +73,17 @@
         ```bash
         cd backend
         pip install -r requirements.txt
-        uvicorn main:app --reload
+        uvicorn main:app --reload --port 8001
         ```
     *   **프론트엔드 (React):**
         ```bash
         cd frontend
         npm install
-        npm start
+        PORT=3001 npm start
+        ```
+    *   **또는 start_servers.bat 사용 (Windows):**
+        ```bash
+        start_servers.bat
         ```
 
 ## GitHub Actions CI/CD
@@ -73,6 +106,17 @@
 *   `RENDER_API_KEY`: (선택 사항) Render API 키
 *   `VERCEL_TOKEN`: Vercel 배포 토큰
 *   `FIREBASE_SERVICE_ACCOUNT_KEY`: Firebase 서비스 계정 키 (JSON 형식의 문자열)
+
+## API 엔드포인트
+
+백엔드는 다음과 같은 RESTful API 엔드포인트를 제공합니다:
+
+- `GET /api/firebase/current_ranking/` - 현재 시점의 전체 사이트 순위
+- `GET /api/firebase/top10_daily_stats/?days=7` - 상위 10개 사이트의 일별 통계 (날짜별 점유율 포함)
+- `POST /api/firebase/crawl_and_save_data/` - 수동 크롤링 트리거
+- `GET /api/firebase/traffic_history/{site_name}?days=7` - 특정 사이트의 트래픽 이력
+
+API 문서는 `http://localhost:8001/docs` (FastAPI 자동 생성 문서)에서 확인할 수 있습니다.
 
 ## 배포
 
