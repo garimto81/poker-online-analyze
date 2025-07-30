@@ -1,0 +1,52 @@
+name: Test Crawler Setup
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/test-crawler.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Test Python imports
+      run: |
+        python -c "print('Python 버전:', sys.version)" || true
+        python -c "import sys; print('Python 경로:', sys.executable)" || true
+    
+    - name: Install basic requirements
+      run: |
+        pip install requests beautifulsoup4 cloudscraper
+        pip list
+    
+    - name: Test crawler import
+      run: |
+        cd backend
+        python -c "
+        try:
+            import sys
+            sys.path.append('.')
+            from app.services.poker_crawler import LivePokerScoutCrawler
+            print('[OK] Crawler import success!')
+        except ImportError as e:
+            print(f'[ERROR] Import failed: {e}')
+            print('현재 디렉토리:', os.getcwd())
+            print('sys.path:', sys.path)
+            import os
+            print('파일 목록:', os.listdir('.'))
+        "
+    
+    - name: Test network access
+      run: |
+        curl -I https://www.pokerscout.com || echo "PokerScout 접속 테스트"
