@@ -35,7 +35,7 @@ jobs:
     - name: Run crawler
       run: |
         cd backend
-        python github_actions_crawler.py
+        python github_actions_crawler_v2.py
     
     - name: Clean up
       if: always()
