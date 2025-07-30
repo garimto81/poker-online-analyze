@@ -22,9 +22,8 @@ jobs:
     - name: Install dependencies
       run: |
         cd backend
-        pip install -r requirements.txt
-        # Ensure cloudscraper is installed
-        pip install cloudscraper beautifulsoup4 lxml
+        pip install --upgrade pip
+        pip install fastapi firebase-admin cloudscraper beautifulsoup4 lxml requests
     
     - name: Create Firebase key from secret
       env:
@@ -36,61 +35,7 @@ jobs:
     - name: Run crawler
       run: |
         cd backend
-        python -c "
-        import sys
-        import os
-        import traceback
-        
-        # Add backend to path
-        sys.path.insert(0, os.getcwd())
-        
-        print('=== GitHub Actions Crawling Start ===')
-        print(f'Current directory: {os.getcwd()}')
-        print(f'Python path: {sys.path[:3]}')
-        
-        try:
-            # Import check
-            print('Importing crawler modules...')
-            from app.services.poker_crawler import LivePokerScoutCrawler, upload_to_firestore_efficiently
-            print('Import successful!')
-            
-            # Create crawler instance
-            print('Creating crawler instance...')
-            crawler = LivePokerScoutCrawler()
-            
-            # Crawl data
-            print('Starting crawl...')
-            crawled_data = crawler.crawl_pokerscout_data()
-            
-            if crawled_data:
-                print(f'Crawl success: {len(crawled_data)} sites found')
-                
-                # Upload to Firebase
-                print('Uploading to Firebase...')
-                upload_to_firestore_efficiently(crawled_data)
-                print('Firebase upload complete!')
-            else:
-                print('ERROR: No data crawled')
-                sys.exit(1)
-                
-        except ImportError as e:
-            print(f'Import Error: {e}')
-            print('Directory contents:')
-            for root, dirs, files in os.walk('.'):
-                level = root.replace('.', '').count(os.sep)
-                indent = ' ' * 2 * level
-                print(f'{indent}{os.path.basename(root)}/')
-                subindent = ' ' * 2 * (level + 1)
-                for file in files[:5]:  # Limit to 5 files per dir
-                    print(f'{subindent}{file}')
-            sys.exit(1)
-        except Exception as e:
-            print(f'Error occurred: {e}')
-            traceback.print_exc()
-            sys.exit(1)
-            
-        print('=== Crawling Complete ===')
-        "
+        python github_actions_crawler.py
     
     - name: Clean up
       if: always()
