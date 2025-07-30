@@ -40,12 +40,12 @@ jobs:
         npm install
     
     - name: Build for GitHub Pages
+      env:
+        REACT_APP_API_URL: https://poker-analyzer-api.vercel.app
+        PUBLIC_URL: /poker-online-analyze
+        CI: false
       run: |
         cd frontend
-        # GitHub Pages용 환경 변수 설정
-        echo "REACT_APP_API_URL=https://poker-analyzer-api.vercel.app" > .env.production
-        echo "PUBLIC_URL=/poker-online-analyze" >> .env.production
-        # React Router 대신 hash router 사용을 위한 설정
         npm run build
       
     - name: Upload artifact
