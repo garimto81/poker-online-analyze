@@ -6,26 +6,36 @@
 
 이 프로젝트는 PokerScout.com에서 온라인 포커 사이트의 데이터를 매일 자동으로 수집하고, 이를 시각화하여 사용자에게 트렌드 및 비교 분석 정보를 제공하는 것을 목표로 합니다.
 
-## 최신 업데이트 (2025-01-30)
+## 📊 현재 배포 상태 (2025-01-30 18:30 KST)
 
-- 포트 변경: Backend (8001→4001), Frontend (3001→4000)
-- 차트 개선: 각 지표별로 독립적인 상위 10개 사이트 표시
-- Windows Task Scheduler 및 GitHub Actions 자동 크롤링 지원
-- **웹 배포 지원**: Render (백엔드) + Vercel (프론트엔드)
+### ✅ 정상 작동
+- **Firebase 데이터베이스**: 59개 포커 사이트 데이터 저장 완료
+- **Daily 크롤링**: GitHub Actions 자동 크롤링 시스템 구축 완료 (매일 3AM KST)
+- **Firebase 직접 연결**: 클라이언트에서 Firebase REST API 직접 접근 구현
 
-## 🌐 온라인 데모
+### ⚠️ 현재 이슈
+- **GitHub Pages 배포**: Actions 워크플로우 실패로 React 앱 배포 중단
+- **웹사이트 접근**: URL은 활성화되어 있으나 올바른 앱이 서빙되지 않음
+- **Vercel API**: 서버리스 함수 배포 실패 (DEPLOYMENT_NOT_FOUND)
 
-- **Website**: https://garimto81.github.io/poker-online-analyze (GitHub Pages)
-- **API**: https://poker-analyzer-api.vercel.app (Vercel Functions)
-- **API Docs**: https://poker-analyzer-api.vercel.app/docs
+### 🔧 작업 진행 상황
+- GitHub Actions 빌드 이슈 디버깅 중
+- Firebase 직접 연결로 백엔드 우회 솔루션 구현 완료
+- 클라우드 기반 자동 크롤링 시스템 완성
+
+## 🌐 온라인 접근
+
+- **Target Website**: https://garimto81.github.io/poker-online-analyze (배포 이슈로 일시 중단)
+- **Firebase Database**: ✅ 정상 작동 (직접 API 접근 가능)
+- **Data Source**: PokerScout.com (59개 사이트)
 
 ## 주요 기능
 
 ### 데이터 수집
-- PokerScout.com에서 47개 온라인 포커 사이트의 실시간 데이터 크롤링
+- PokerScout.com에서 59개 온라인 포커 사이트의 실시간 데이터 크롤링
 - Firebase Firestore에 일별 트래픽 데이터 저장
-- Windows Task Scheduler를 통한 자동 일일 크롤링 (매일 오전 3시)
-- GitHub Actions를 통한 자동 일일 크롤링 (UTC 자정)
+- GitHub Actions를 통한 완전 자동화된 일일 크롤링 (매일 오전 3시 KST)
+- 서버 없이 클라우드에서 동작하는 크롤링 시스템
 
 ### 데이터 시각화
 - **실시간 순위 테이블**
@@ -50,11 +60,11 @@
 ## 기술 스택
 
 *   **프론트엔드:** React (TypeScript), Chart.js (react-chartjs-2), CSS
-*   **백엔드:** Python (FastAPI), APScheduler
-*   **데이터베이스:** Firebase (Firestore)
-*   **크롤링:** Python (Cloudscraper, BeautifulSoup)
-*   **배포:** Docker, GitHub Actions, Render (백엔드), Vercel (프론트엔드)
-*   **버전 관리:** Git / GitHub
+*   **백엔드:** ~~Python (FastAPI)~~ → Firebase 직접 연결로 서버리스 구현
+*   **데이터베이스:** Firebase (Firestore) - 59개 사이트 데이터 저장
+*   **크롤링:** Python (Cloudscraper, BeautifulSoup) - GitHub Actions 기반
+*   **배포:** GitHub Pages (프론트엔드), GitHub Actions (자동 크롤링)
+*   **클라우드:** 완전 서버리스 아키텍처 (PC 꺼져도 동작)
 
 ## 로컬 환경 설정
 
@@ -99,17 +109,22 @@
         start_servers.bat
         ```
 
-## GitHub Actions CI/CD
+## GitHub Actions 자동화
 
-이 프로젝트는 GitHub Actions를 사용하여 지속적 통합(CI) 및 지속적 배포(CD)를 자동화합니다.
+### 🔄 현재 활성 워크플로우
+*   **`daily-crawl.yml`**: 매일 오전 3시(KST)에 포커 데이터 자동 수집 ✅
+*   **`deploy-github-pages.yml`**: React 앱을 GitHub Pages에 자동 배포 ⚠️ (현재 이슈)
 
-### 워크플로우
+### 📋 트러블슈팅 이력
+- **2025-01-30**: GitHub Actions 빌드 실패 이슈 발생
+- **해결 완료**: Daily crawler를 서버리스 방식으로 재구현
+- **진행 중**: GitHub Pages 배포 워크플로우 디버깅
 
-*   `.github/workflows/backend-ci.yml`: 백엔드 코드에 대한 CI (린팅, 테스트)를 수행합니다. Pull Request 시 자동 실행됩니다.
-*   `.github/workflows/frontend-ci.yml`: 프론트엔드 코드에 대한 CI (테스트, 빌드)를 수행합니다. Pull Request 시 자동 실행됩니다.
-*   `.github/workflows/deploy-backend.yml`: `main` 브랜치에 백엔드 코드 변경 사항이 푸시될 때 Render에 자동 배포합니다.
-*   `.github/workflows/deploy-frontend.yml`: `main` 브랜치에 프론트엔드 코드 변경 사항이 푸시될 때 Vercel에 자동 배포합니다.
-*   `.github/workflows/schedule-crawler.yml`: 매일 자정(UTC)에 PokerScout 크롤러를 실행하여 데이터를 수집합니다.
+### 🗂️ 제거된 워크플로우
+- ~~backend-ci.yml~~ (서버리스 전환으로 불필요)
+- ~~deploy-backend.yml~~ (Render 배포 중단)
+- ~~deploy-frontend.yml~~ (Vercel 배포 중단)
+- ~~schedule-crawler.yml~~ (daily-crawl.yml로 통합)
 
 ### Secrets 설정
 
