@@ -4,7 +4,7 @@
  */
 
 // Firebase 클라이언트 라이브러리는 환경에 따라 다르게 처리
-let firebase: any = null;
+// let firebase: any = null; // Currently unused
 
 // 간단한 HTTP 기반 Firebase REST API 클라이언트
 class FirebaseRestClient {

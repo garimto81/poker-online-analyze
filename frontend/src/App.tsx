@@ -56,7 +56,7 @@ function App() {
   useEffect(() => {
     fetchCurrentRanking();
     fetchAllSitesStats();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchCurrentRanking = async () => {
     try {
