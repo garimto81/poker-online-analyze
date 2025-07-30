@@ -6,28 +6,38 @@
 
 이 프로젝트는 PokerScout.com에서 온라인 포커 사이트의 데이터를 매일 자동으로 수집하고, 이를 시각화하여 사용자에게 트렌드 및 비교 분석 정보를 제공하는 것을 목표로 합니다.
 
-## 📊 현재 배포 상태 (2025-01-30 18:30 KST)
+## 📊 현재 배포 상태 (최종 업데이트: 2025-01-30 19:00 KST)
 
-### ✅ 정상 작동
+### ✅ 정상 작동 중인 시스템
 - **Firebase 데이터베이스**: 59개 포커 사이트 데이터 저장 완료
 - **Daily 크롤링**: GitHub Actions 자동 크롤링 시스템 구축 완료 (매일 3AM KST)
 - **Firebase 직접 연결**: 클라이언트에서 Firebase REST API 직접 접근 구현
+- **웹사이트 배포**: GitHub Pages에 React 앱 성공적으로 배포
+- **차트 데이터**: 실제 Firebase traffic_logs 데이터 표시 (가짜 7일 분산 이슈 해결)
 
-### ⚠️ 현재 이슈
-- **GitHub Pages 배포**: Actions 워크플로우 실패로 React 앱 배포 중단
-- **웹사이트 접근**: URL은 활성화되어 있으나 올바른 앱이 서빙되지 않음
-- **Vercel API**: 서버리스 함수 배포 실패 (DEPLOYMENT_NOT_FOUND)
+### 📈 현재 실데이터 현황
+- **수집된 데이터**: 7/29, 7/30 (2일간 실제 데이터)
+- **차트 표시**: 실제 수집된 데이터만 표시 (더이상 가짜 7일 분산 없음)
+- **동일날 중복실행**: 각 실행마다 별도 타임스탬프로 문서 생성 (덮어쓰기 없음)
 
-### 🔧 작업 진행 상황
-- GitHub Actions 빌드 이슈 디버깅 중
-- Firebase 직접 연결로 백엔드 우회 솔루션 구현 완료
-- 클라우드 기반 자동 크롤링 시스템 완성
+### 🚀 완전 해결된 이슈들
+- ~~GitHub Pages 배포 실패~~ → ✅ 성공적으로 배포 완료
+- ~~차트 데이터 가짜 7일 분산~~ → ✅ 실제 Firebase 데이터 표시로 수정
+- ~~Vercel API 의존성~~ → ✅ Firebase 직접 연결로 우회 완료
 
 ## 🌐 온라인 접근
 
-- **Target Website**: https://garimto81.github.io/poker-online-analyze (배포 이슈로 일시 중단)
+- **웹사이트**: https://garimto81.github.io/poker-online-analyze ✅ 정상 서비스
 - **Firebase Database**: ✅ 정상 작동 (직접 API 접근 가능)
 - **Data Source**: PokerScout.com (59개 사이트)
+
+## 📊 데이터 수집 동작 방식
+
+### 동일 날짜 중복 실행 처리
+- **각 실행은 독립적인 타임스탬프 문서 생성**: 같은 날 여러 번 실행해도 이전 데이터를 덮어쓰지 않음
+- **일중 트렌드 추적 가능**: 동일한 날에 여러 데이터 포인트가 있으면 시간별 변화 추적 가능
+- **예시**: 7/30일에 3번 실행하면 3개의 별도 문서가 생성되어 일중 플레이어 수 변화 확인 가능
+- **Firebase 구조**: 각 사이트별로 `sites/{site_name}/traffic_logs/{ISO_timestamp}` 형태로 저장
 
 ## 주요 기능
 
@@ -113,12 +123,14 @@
 
 ### 🔄 현재 활성 워크플로우
 *   **`daily-crawl.yml`**: 매일 오전 3시(KST)에 포커 데이터 자동 수집 ✅
-*   **`deploy-github-pages.yml`**: React 앱을 GitHub Pages에 자동 배포 ⚠️ (현재 이슈)
+*   **`deploy-github-pages.yml`**: React 앱을 GitHub Pages에 자동 배포 ✅
 
 ### 📋 트러블슈팅 이력
-- **2025-01-30**: GitHub Actions 빌드 실패 이슈 발생
-- **해결 완료**: Daily crawler를 서버리스 방식으로 재구현
-- **진행 중**: GitHub Pages 배포 워크플로우 디버깅
+- **2025-01-30 18:00**: GitHub Actions 빌드 실패 이슈 발생
+- **2025-01-30 18:30**: Daily crawler를 서버리스 방식으로 재구현 완료
+- **2025-01-30 19:00**: GitHub Pages 배포 워크플로우 디버깅 완료 및 정상 배포 확인
+- **해결 완료**: 차트 데이터 가짜 7일 분산 이슈 → 실제 Firebase traffic_logs 데이터 표시로 수정
+- **분석 완료**: 동일 날짜 중복 실행 시 각각 독립적인 타임스탬프 문서 생성 확인
 
 ### 🗂️ 제거된 워크플로우
 - ~~backend-ci.yml~~ (서버리스 전환으로 불필요)
