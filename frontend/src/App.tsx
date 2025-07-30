@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import firebaseService from './services/firebaseService';
 import TrendChart from './components/TrendChart';
 import './App.css';
 
@@ -44,8 +45,13 @@ function App() {
   const [sortField, setSortField] = useState<SortField>('rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
-  // API URL 환경 변수 설정
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4001';
+  // API URL 환경 변수 설정 with fallbacks
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 
+    (process.env.NODE_ENV === 'production' 
+      ? 'https://poker-analyzer-api.vercel.app' 
+      : 'http://localhost:4001');
+
+  console.log('API_BASE_URL:', API_BASE_URL); // 디버깅용
 
   useEffect(() => {
     fetchCurrentRanking();
@@ -56,90 +62,58 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`);
-      setSites(response.data);
-      if (response.data.length > 0 && response.data[0].last_updated) {
-        setLastUpdate(new Date(response.data[0].last_updated).toLocaleString());
+      
+      // 먼저 API 서버 시도
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`);
+        setSites(response.data);
+        if (response.data.length > 0 && response.data[0].last_updated) {
+          setLastUpdate(new Date(response.data[0].last_updated).toLocaleString());
+        }
+        setLoading(false);
+        console.log('Data loaded from API server successfully');
+        return;
+      } catch (apiError) {
+        console.log('API server failed, trying Firebase direct connection...', apiError);
+        
+        // API 실패시 Firebase 직접 연결 시도
+        const firebaseData = await firebaseService.getCurrentRanking();
+        setSites(firebaseData);
+        if (firebaseData.length > 0 && firebaseData[0].last_updated) {
+          setLastUpdate(new Date(firebaseData[0].last_updated).toLocaleString());
+        }
+        setLoading(false);
+        console.log('Data loaded from Firebase directly');
+        return;
       }
-      setLoading(false);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to fetch data. Please ensure the backend is running.');
+      console.error('All data fetch attempts failed:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to fetch data. Tried API (${API_BASE_URL}) and Firebase direct. Error: ${errorMessage}`);
       setLoading(false);
     }
   };
 
   const fetchAllSitesStats = async () => {
     try {
-      // 먼저 전체 사이트 데이터 API 시도
-      const response = await axios.get(`${API_BASE_URL}/api/firebase/all_sites_daily_stats/`);
-      setAllSitesData(response.data);
-    } catch (err) {
-      console.error('Error fetching all sites stats:', err);
-      
-      // 대안: 전체 사이트 현재 순위를 가져와서 각 사이트별 통계 구성
+      // 먼저 API 서버 시도
       try {
-        // 1. 전체 사이트 현재 순위 가져오기
-        const rankingResponse = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`);
-        const allSites = rankingResponse.data;
+        const response = await axios.get(`${API_BASE_URL}/api/firebase/all_sites_daily_stats/`);
+        setAllSitesData(response.data);
+        console.log('All sites stats loaded from API server');
+        return;
+      } catch (apiError) {
+        console.log('API server failed for stats, trying Firebase direct...', apiError);
         
-        // 2. 각 사이트별 일별 데이터는 간단히 현재 값으로 채우기 (임시)
-        const allSitesData: AllSitesData = {
-          total_sites: allSites.length,
-          data: {},
-          days: 7
-        };
-        
-        // 3. 각 사이트 데이터 구성
-        for (const site of allSites) {
-          const dailyData = [];
-          // 최근 7일간 데이터 (현재 값으로 채우기)
-          for (let i = 0; i < 7; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            dailyData.push({
-              date: date.toISOString(),
-              players_online: site.players_online,
-              cash_players: site.cash_players,
-              peak_24h: site.peak_24h,
-              seven_day_avg: site.seven_day_avg
-            });
-          }
-          
-          allSitesData.data[site.site_name] = {
-            current_stats: {
-              site_name: site.site_name,
-              category: site.category,
-              players_online: site.players_online,
-              cash_players: site.cash_players,
-              peak_24h: site.peak_24h,
-              seven_day_avg: site.seven_day_avg
-            },
-            daily_data: dailyData
-          };
-        }
-        
-        setAllSitesData(allSitesData);
-        console.log('Using current ranking data for all sites - daily trends will be flat');
-      } catch (fallbackErr) {
-        console.error('Failed to fetch current ranking:', fallbackErr);
-        
-        // 최후의 대안: top10 API 사용
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/firebase/top10_daily_stats/`);
-          if (response.data) {
-            const convertedData: AllSitesData = {
-              total_sites: response.data.top10_sites.length,
-              data: response.data.data,
-              days: response.data.days
-            };
-            setAllSitesData(convertedData);
-            console.warn('Using limited top10 API - charts will show incorrect rankings!');
-          }
-        } catch (lastErr) {
-          console.error('All API attempts failed:', lastErr);
-        }
+        // API 실패시 Firebase 직접 연결로 통계 데이터 구성
+        const firebaseData = await firebaseService.getAllSitesDailyStats(7);
+        setAllSitesData(firebaseData);
+        console.log('All sites stats loaded from Firebase directly');
+        return;
       }
+    } catch (err) {
+      console.error('All attempts to fetch stats failed:', err);
+      // 통계 데이터 실패는 차트만 영향받으므로 앱을 중단하지 않음
     }
   };
 
@@ -153,7 +127,7 @@ function App() {
       fetchAllSitesStats(); // 차트 데이터도 새로고침
     } catch (err) {
       console.error('Error triggering crawl:', err);
-      setError('Failed to trigger crawl. Please check the backend.');
+      alert('Crawl function is not available when using direct Firebase connection. Crawling is handled by GitHub Actions daily.');
       setLoading(false);
     }
   };
