@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import firebaseService from './services/firebaseService';
 import TrendChart from './components/TrendChart';
+import MarketShareStackedChart from './components/MarketShareStackedChart';
 import './App.css';
 
 interface Site {
@@ -13,6 +14,8 @@ interface Site {
   seven_day_avg: number;
   last_updated?: string;
   rank?: number;
+  players_share?: number;
+  cash_share?: number;
 }
 
 interface AllSitesData {
@@ -32,7 +35,7 @@ interface AllSitesData {
   days: number;
 }
 
-type SortField = 'rank' | 'site_name' | 'category' | 'players_online' | 'cash_players' | 'peak_24h' | 'seven_day_avg';
+type SortField = 'rank' | 'site_name' | 'category' | 'players_online' | 'cash_players' | 'peak_24h' | 'seven_day_avg' | 'players_share' | 'cash_share';
 type SortDirection = 'asc' | 'desc';
 
 function App() {
@@ -63,29 +66,40 @@ function App() {
       setLoading(true);
       setError(null);
       
+      let sitesData: Site[] = [];
+      
       // 먼저 API 서버 시도
       try {
         const response = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`);
-        setSites(response.data);
+        sitesData = response.data;
         if (response.data.length > 0 && response.data[0].last_updated) {
           setLastUpdate(new Date(response.data[0].last_updated).toLocaleString());
         }
-        setLoading(false);
         console.log('Data loaded from API server successfully');
-        return;
       } catch (apiError) {
         console.log('API server failed, trying Firebase direct connection...', apiError);
         
         // API 실패시 Firebase 직접 연결 시도
         const firebaseData = await firebaseService.getCurrentRanking();
-        setSites(firebaseData);
+        sitesData = firebaseData;
         if (firebaseData.length > 0 && firebaseData[0].last_updated) {
           setLastUpdate(new Date(firebaseData[0].last_updated).toLocaleString());
         }
-        setLoading(false);
         console.log('Data loaded from Firebase directly');
-        return;
       }
+      
+      // 점유율 계산
+      const totalPlayers = sitesData.reduce((sum, site) => sum + site.players_online, 0);
+      const totalCashPlayers = sitesData.reduce((sum, site) => sum + site.cash_players, 0);
+      
+      const sitesWithShare = sitesData.map(site => ({
+        ...site,
+        players_share: totalPlayers > 0 ? (site.players_online / totalPlayers) * 100 : 0,
+        cash_share: totalCashPlayers > 0 ? (site.cash_players / totalCashPlayers) * 100 : 0
+      }));
+      
+      setSites(sitesWithShare);
+      setLoading(false);
     } catch (err) {
       console.error('All data fetch attempts failed:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -239,8 +253,14 @@ function App() {
                 <th onClick={() => handleSort('players_online')} style={{ cursor: 'pointer' }}>
                   Players Online {getSortIcon('players_online')}
                 </th>
+                <th onClick={() => handleSort('players_share')} style={{ cursor: 'pointer' }}>
+                  Share % {getSortIcon('players_share')}
+                </th>
                 <th onClick={() => handleSort('cash_players')} style={{ cursor: 'pointer' }}>
                   Cash Players {getSortIcon('cash_players')}
+                </th>
+                <th onClick={() => handleSort('cash_share')} style={{ cursor: 'pointer' }}>
+                  Share % {getSortIcon('cash_share')}
                 </th>
                 <th onClick={() => handleSort('peak_24h')} style={{ cursor: 'pointer' }}>
                   24h Peak {getSortIcon('peak_24h')}
@@ -264,7 +284,9 @@ function App() {
                     </span>
                   </td>
                   <td className="number">{site.players_online.toLocaleString()}</td>
+                  <td className="number">{site.players_share?.toFixed(2)}%</td>
                   <td className="number">{site.cash_players.toLocaleString()}</td>
+                  <td className="number">{site.cash_share?.toFixed(2)}%</td>
                   <td className="number">{site.peak_24h.toLocaleString()}</td>
                   <td className="number">{site.seven_day_avg.toLocaleString()}</td>
                 </tr>
@@ -276,6 +298,22 @@ function App() {
 
         {activeTab === 'charts' && allSitesData && (
           <div className="charts-container">
+            <div className="chart-section">
+              <MarketShareStackedChart 
+                data={allSitesData.data} 
+                metric="players_online"
+                title="Players Online - Market Share Distribution (Top 10 Sites)"
+              />
+            </div>
+            
+            <div className="chart-section">
+              <MarketShareStackedChart 
+                data={allSitesData.data} 
+                metric="cash_players"
+                title="Cash Players - Market Share Distribution (Top 10 Sites)"
+              />
+            </div>
+            
             <div className="chart-section">
               <TrendChart 
                 data={allSitesData.data} 
@@ -315,6 +353,11 @@ function App() {
           <p>Total Sites: {sites.length}</p>
           <p>GG Poker Sites: {sites.filter(s => s.category === 'GG_POKER').length}</p>
           <p>Total Players Online: {sites.reduce((sum, site) => sum + site.players_online, 0).toLocaleString()}</p>
+          <p>GG Poker Market Share: {
+            sites.filter(s => s.category === 'GG_POKER')
+              .reduce((sum, site) => sum + (site.players_share || 0), 0)
+              .toFixed(2)
+          }%</p>
         </div>
       </main>
     </div>

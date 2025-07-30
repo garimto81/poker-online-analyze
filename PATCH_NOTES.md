@@ -4,6 +4,61 @@
 
 ---
 
+## 2025년 1월 31일
+
+### 🚀 v2.1.0 - 시장 점유율 분석 기능 업데이트
+
+#### 주요 기능 추가
+
+1. **시장 점유율 계산 및 표시**
+   - 각 포커 사이트의 Players Online 점유율(%) 계산
+   - 각 포커 사이트의 Cash Players 점유율(%) 계산
+   - 테이블에 Share % 컬럼 2개 추가
+   - Summary 섹션에 GG Poker 전체 시장 점유율 표시
+   - 정렬 가능한 새로운 컬럼으로 추가
+
+2. **누적 차트 (Stacked Area Chart) 구현**
+   - 시장 점유율 분포를 시각적으로 표현하는 누적 차트 추가
+   - Players Online 시장 점유율 분포 차트
+   - Cash Players 시장 점유율 분포 차트
+   - 상위 10개 사이트의 점유율을 100% 누적으로 표현
+   - 시간에 따른 시장 점유율 변화를 직관적으로 추적 가능
+   - 툴팁에 백분율과 실제 플레이어 수 동시 표시
+
+3. **숫자 포맷팅 개선**
+   - 모든 숫자에 3자리마다 쉼표(,) 추가로 가독성 향상
+   - 이미 적용되어 있던 `.toLocaleString()` 메서드 확인
+
+4. **Firebase 데이터 입력 문제 해결**
+   - GitHub Actions에서 Firebase Admin SDK 초기화 실패 문제 해결
+   - Firestore REST API를 사용하는 새로운 크롤러 구현
+   - 서비스 계정 키 없이도 공개 REST API로 데이터 업로드 가능
+   - traffic_logs 문서 ID 형식 통일 (ISO 타임스탬프 사용)
+
+#### 기술적 변경사항
+
+**Frontend:**
+- `App.tsx`: 점유율 계산 로직 추가, 테이블 컬럼 확장
+- `MarketShareStackedChart.tsx`: 새로운 차트 컴포넌트 생성
+- Chart.js Filler 플러그인 추가로 영역 차트 구현
+
+**Backend:**
+- `github_actions_crawler_firestore.py`: REST API 기반 크롤러 구현
+- `.github/workflows/daily-crawl.yml`: 새로운 크롤러 사용하도록 업데이트
+- Google Auth 라이브러리 의존성 추가
+
+#### 파일 변경 목록
+- 수정: `frontend/src/App.tsx`
+- 생성: `frontend/src/components/MarketShareStackedChart.tsx`
+- 생성: `backend/github_actions_crawler_firestore.py`
+- 생성: `backend/github_actions_crawler_v2.py`
+- 생성: `backend/github_actions_crawler_rest.py`
+- 수정: `.github/workflows/daily-crawl.yml`
+- 수정: `README.md`
+- 수정: `PATCH_NOTES.md`
+
+---
+
 ## 2025년 7월 28일
 
 ### CI/CD: 프론트엔드 워크플로우 디버깅

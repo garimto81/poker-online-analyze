@@ -23,7 +23,7 @@ jobs:
       run: |
         cd backend
         pip install --upgrade pip
-        pip install fastapi firebase-admin cloudscraper beautifulsoup4 lxml requests
+        pip install fastapi firebase-admin cloudscraper beautifulsoup4 lxml requests google-auth google-auth-oauthlib google-auth-httplib2
     
     - name: Create Firebase key from secret
       env:
@@ -35,7 +35,7 @@ jobs:
     - name: Run crawler
       run: |
         cd backend
-        python github_actions_crawler_v2.py
+        python github_actions_crawler_firestore.py
     
     - name: Clean up
       if: always()
