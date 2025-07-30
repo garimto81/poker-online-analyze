@@ -280,7 +280,7 @@ function App() {
               <TrendChart 
                 data={allSitesData.data} 
                 metric="players_online"
-                title="Players Online - Daily Trend (Top 10 by Current Players Online)"
+                title="Players Online - Historical Trend (Top 10 Sites)"
               />
             </div>
             
@@ -288,7 +288,7 @@ function App() {
               <TrendChart 
                 data={allSitesData.data} 
                 metric="cash_players"
-                title="Cash Players - Daily Trend (Top 10 by Current Cash Players)"
+                title="Cash Players - Historical Trend (Top 10 Sites)"
               />
             </div>
             
@@ -296,7 +296,7 @@ function App() {
               <TrendChart 
                 data={allSitesData.data} 
                 metric="peak_24h"
-                title="24h Peak - Daily Trend (Top 10 by Current 24h Peak)"
+                title="24h Peak - Historical Trend (Top 10 Sites)"
               />
             </div>
             
@@ -304,7 +304,7 @@ function App() {
               <TrendChart 
                 data={allSitesData.data} 
                 metric="seven_day_avg"
-                title="7-Day Average - Daily Trend (Top 10 by Current 7-Day Average)"
+                title="7-Day Average - Historical Trend (Top 10 Sites)"
               />
             </div>
           </div>

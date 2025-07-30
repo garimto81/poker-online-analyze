@@ -99,37 +99,90 @@ class FirebaseRestClient {
         days: days
       };
 
-      // 각 사이트의 일별 데이터는 현재 값으로 대체 (REST API 제한으로 인해)
+      // 각 사이트의 실제 일별 데이터 가져오기
       for (const site of currentRanking) {
-        const dailyData = [];
-        
-        // 최근 days일간 데이터 (현재 값으로 채우기)
-        for (let i = 0; i < days; i++) {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          dailyData.push({
-            date: date.toISOString(),
-            players_online: site.players_online,
-            cash_players: site.cash_players,
-            peak_24h: site.peak_24h,
-            seven_day_avg: site.seven_day_avg
-          });
+        try {
+          // 실제 traffic_logs 데이터 가져오기
+          const trafficResponse = await fetch(
+            `${this.baseUrl}/sites/${encodeURIComponent(site.site_name)}/traffic_logs`
+          );
+          
+          let dailyData = [];
+          
+          if (trafficResponse.ok) {
+            const trafficData = await trafficResponse.json();
+            const logs = trafficData.documents || [];
+            
+            if (logs.length > 0) {
+              // 날짜별로 정렬 (최신순)
+              const sortedLogs = logs.sort((a: any, b: any) => {
+                const dateA = new Date(a.fields?.collected_at?.timestampValue || 0);
+                const dateB = new Date(b.fields?.collected_at?.timestampValue || 0);
+                return dateB.getTime() - dateA.getTime();
+              });
+              
+              // 실제 데이터를 daily_data로 변환
+              dailyData = sortedLogs.map((log: any) => {
+                const fields = log.fields || {};
+                return {
+                  date: fields.collected_at?.timestampValue || new Date().toISOString(),
+                  players_online: parseInt(fields.players_online?.integerValue || '0'),
+                  cash_players: parseInt(fields.cash_players?.integerValue || '0'),
+                  peak_24h: parseInt(fields.peak_24h?.integerValue || '0'),
+                  seven_day_avg: parseInt(fields.seven_day_avg?.integerValue || '0')
+                };
+              });
+            }
+          }
+          
+          // 데이터가 없으면 현재 값으로 하나의 포인트만 생성
+          if (dailyData.length === 0) {
+            dailyData = [{
+              date: new Date().toISOString(),
+              players_online: site.players_online,
+              cash_players: site.cash_players,
+              peak_24h: site.peak_24h,
+              seven_day_avg: site.seven_day_avg
+            }];
+          }
+          
+          allSitesData.data[site.site_name] = {
+            current_stats: {
+              site_name: site.site_name,
+              category: site.category,
+              players_online: site.players_online,
+              cash_players: site.cash_players,
+              peak_24h: site.peak_24h,
+              seven_day_avg: site.seven_day_avg
+            },
+            daily_data: dailyData
+          };
+          
+        } catch (siteError) {
+          console.warn(`Error fetching data for ${site.site_name}:`, siteError);
+          
+          // 에러 시 현재 값으로 하나의 포인트만 생성
+          allSitesData.data[site.site_name] = {
+            current_stats: {
+              site_name: site.site_name,
+              category: site.category,
+              players_online: site.players_online,
+              cash_players: site.cash_players,
+              peak_24h: site.peak_24h,
+              seven_day_avg: site.seven_day_avg
+            },
+            daily_data: [{
+              date: new Date().toISOString(),
+              players_online: site.players_online,
+              cash_players: site.cash_players,
+              peak_24h: site.peak_24h,
+              seven_day_avg: site.seven_day_avg
+            }]
+          };
         }
-        
-        allSitesData.data[site.site_name] = {
-          current_stats: {
-            site_name: site.site_name,
-            category: site.category,
-            players_online: site.players_online,
-            cash_players: site.cash_players,
-            peak_24h: site.peak_24h,
-            seven_day_avg: site.seven_day_avg
-          },
-          daily_data: dailyData
-        };
       }
 
-      console.log(`Prepared daily stats for ${currentRanking.length} sites`);
+      console.log(`Prepared daily stats for ${currentRanking.length} sites with actual traffic data`);
       return allSitesData;
       
     } catch (error) {
