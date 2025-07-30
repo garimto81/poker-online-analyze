@@ -40,14 +40,20 @@ class FirebaseRestClient {
           
           // 각 사이트의 최신 traffic_logs 가져오기
           const trafficResponse = await fetch(
-            `${this.baseUrl}/sites/${siteName}/traffic_logs?orderBy=collected_at&pageSize=1`
+            `${this.baseUrl}/sites/${encodeURIComponent(siteName)}/traffic_logs`
           );
           
           let latestTraffic = null;
           if (trafficResponse.ok) {
             const trafficData = await trafficResponse.json();
             if (trafficData.documents && trafficData.documents.length > 0) {
-              latestTraffic = trafficData.documents[0].fields;
+              // 최신 데이터 찾기 (collected_at 기준으로 정렬)
+              const sortedLogs = trafficData.documents.sort((a: any, b: any) => {
+                const dateA = new Date(a.fields?.collected_at?.timestampValue || 0);
+                const dateB = new Date(b.fields?.collected_at?.timestampValue || 0);
+                return dateB.getTime() - dateA.getTime();
+              });
+              latestTraffic = sortedLogs[0].fields;
             }
           }
           
