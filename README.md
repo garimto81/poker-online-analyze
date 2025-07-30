@@ -15,9 +15,9 @@
 
 ## 🌐 온라인 데모
 
-- **Frontend**: https://poker-analyzer-frontend.vercel.app
-- **Backend API**: https://poker-analyzer-backend.onrender.com
-- **API Docs**: https://poker-analyzer-backend.onrender.com/docs
+- **Website**: https://garimto81.github.io/poker-online-analyze (GitHub Pages)
+- **API**: https://poker-analyzer-api.vercel.app (Vercel Functions)
+- **API Docs**: https://poker-analyzer-api.vercel.app/docs
 
 ## 주요 기능
 
