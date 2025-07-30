@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Data Test</title>
+</head>
+<body>
+    <h1>Testing Chart Data Structure</h1>
+    <div id="result"></div>
+    
+    <script>
+        async function testData() {
+            try {
+                const response = await fetch('http://localhost:8001/api/firebase/top10_daily_stats/');
+                const data = await response.json();
+                
+                const result = document.getElementById('result');
+                
+                // Check data structure
+                const sites = Object.keys(data.data);
+                let html = '<h2>Data Structure Test:</h2>';
+                html += `<p>Total sites: ${sites.length}</p>`;
+                html += '<ul>';
+                
+                sites.slice(0, 3).forEach(site => {
+                    const siteData = data.data[site];
+                    html += `<li>${site}:`;
+                    html += `<ul>`;
+                    html += `<li>Has current_stats: ${siteData.current_stats ? 'YES' : 'NO'}</li>`;
+                    html += `<li>Players online: ${siteData.current_stats?.players_online || 'MISSING'}</li>`;
+                    html += `<li>Market share: ${siteData.market_share}%</li>`;
+                    html += `</ul></li>`;
+                });
+                
+                html += '</ul>';
+                result.innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        testData();
+    </script>
+</body>
+</html>

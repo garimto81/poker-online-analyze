@@ -4,13 +4,20 @@
 
 ## 프로젝트 개요
 
-이 프로젝트는 PokerScout.com과 같은 온라인 포커 사이트의 데이터를 매일 자동으로 수집하고, 이를 시각화하여 사용자에게 트렌드 및 비교 분석 정보를 제공하는 것을 목표로 합니다.
+이 프로젝트는 PokerScout.com에서 온라인 포커 사이트의 데이터를 매일 자동으로 수집하고, 이를 시각화하여 사용자에게 트렌드 및 비교 분석 정보를 제공하는 것을 목표로 합니다.
+
+## 최신 업데이트 (2025-01-30)
+
+- 포트 변경: Backend (8001→4001), Frontend (3001→4000)
+- 차트 개선: 각 지표별로 독립적인 상위 10개 사이트 표시
+- Windows Task Scheduler를 통한 자동 크롤링 지원
 
 ## 주요 기능
 
 ### 데이터 수집
-- PokerScout.com에서 46개 온라인 포커 사이트의 실시간 데이터 크롤링
+- PokerScout.com에서 47개 온라인 포커 사이트의 실시간 데이터 크롤링
 - Firebase Firestore에 일별 트래픽 데이터 저장
+- Windows Task Scheduler를 통한 자동 일일 크롤링 (매일 오전 3시)
 - GitHub Actions를 통한 자동 일일 크롤링 (UTC 자정)
 
 ### 데이터 시각화
@@ -20,13 +27,12 @@
   - GG Poker 네트워크 사이트 하이라이트
   
 - **차트 및 그래프**
-  - 상위 10개 사이트의 시장 점유율 파이 차트
-  - 4가지 메트릭의 일별 트렌드 라인 차트:
+  - 4가지 메트릭별 독립적인 상위 10개 사이트의 일별 트렌드 라인 차트:
     - Players Online (온라인 플레이어)
     - Cash Players (캐시 게임 플레이어)
     - 24h Peak (24시간 최고치)
     - 7-Day Average (7일 평균)
-  - 각 날짜별 시장 점유율 계산 및 표시
+  - 각 메트릭별로 전체 47개 사이트 중 상위 10개를 독립적으로 선정하여 표시
   
 ### 사용자 인터페이스
 - 탭 네비게이션 (테이블 뷰 / 차트 뷰)
@@ -73,13 +79,13 @@
         ```bash
         cd backend
         pip install -r requirements.txt
-        uvicorn main:app --reload --port 8001
+        uvicorn main:app --reload --port 4001
         ```
     *   **프론트엔드 (React):**
         ```bash
         cd frontend
         npm install
-        PORT=3001 npm start
+        npm start  # 자동으로 포트 4000 사용
         ```
     *   **또는 start_servers.bat 사용 (Windows):**
         ```bash
@@ -116,7 +122,27 @@
 - `POST /api/firebase/crawl_and_save_data/` - 수동 크롤링 트리거
 - `GET /api/firebase/traffic_history/{site_name}?days=7` - 특정 사이트의 트래픽 이력
 
-API 문서는 `http://localhost:8001/docs` (FastAPI 자동 생성 문서)에서 확인할 수 있습니다.
+API 문서는 `http://localhost:4001/docs` (FastAPI 자동 생성 문서)에서 확인할 수 있습니다.
+
+## Windows 자동 크롤링 설정
+
+### 설정 방법
+1. **관리자 권한**으로 `setup_scheduler.bat` 실행
+2. Windows 작업 스케줄러에 "PokerDataCrawler" 작업이 등록됨
+3. 매일 오전 3시에 자동으로 데이터 수집
+
+### 수동 실행
+```bash
+# 작업 스케줄러를 통한 즉시 실행
+schtasks /run /tn "PokerDataCrawler"
+
+# 또는 직접 실행
+auto_crawl.bat
+```
+
+### 로그 확인
+- 크롤링 로그: `backend/logs/crawler_YYYYMMDD.log`
+- 간단한 실행 로그: `crawl_log.txt`
 
 ## 배포
 

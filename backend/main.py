@@ -15,7 +15,7 @@ app = FastAPI(
 # CORS 설정 - 프론트엔드와의 통신을 위해
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],  # 프론트엔드 URL
+    allow_origins=["http://localhost:4000", "http://localhost:4001", "http://localhost:4002"],  # 프론트엔드 URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

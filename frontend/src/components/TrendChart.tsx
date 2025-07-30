@@ -39,7 +39,7 @@ interface SiteData {
     peak_24h: number;
     seven_day_avg: number;
   };
-  market_share: number;
+  market_share?: number;
   daily_data: DailyData[];
 }
 
@@ -64,9 +64,14 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
     '#36A2EB'
   ];
 
+  // Sort sites by current metric value and take top 10
+  const sortedSites = Object.entries(data)
+    .sort(([, a], [, b]) => b.current_stats[metric] - a.current_stats[metric])
+    .slice(0, 10);
+
   // Get all unique dates
   const allDates = new Set<string>();
-  Object.values(data).forEach(siteData => {
+  sortedSites.forEach(([, siteData]) => {
     siteData.daily_data.forEach(d => {
       allDates.add(new Date(d.date).toLocaleDateString());
     });
@@ -74,7 +79,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
   const sortedDates = Array.from(allDates).sort();
 
   // Prepare datasets
-  const datasets = Object.entries(data).map(([siteName, siteData], index) => {
+  const datasets = sortedSites.map(([siteName, siteData], index) => {
     const dataPoints = sortedDates.map(date => {
       const dayData = siteData.daily_data.find(
         d => new Date(d.date).toLocaleDateString() === date
@@ -82,23 +87,14 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
       return dayData ? dayData[metric] : null;
     });
 
-    // Store market share data for tooltip
-    const marketShareData = sortedDates.map(date => {
-      const dayData = siteData.daily_data.find(
-        d => new Date(d.date).toLocaleDateString() === date
-      );
-      return dayData ? dayData.market_share : null;
-    });
-
     return {
-      label: `${siteName} (현재: ${siteData.market_share}%)`,
+      label: `${siteName} (현재: ${siteData.current_stats[metric].toLocaleString()})`,
       data: dataPoints,
       borderColor: colors[index % colors.length],
       backgroundColor: colors[index % colors.length] + '20',
       tension: 0.1,
       pointRadius: 3,
-      pointHoverRadius: 5,
-      marketShareData: marketShareData
+      pointHoverRadius: 5
     };
   });
 
@@ -135,15 +131,10 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
           label: function(context) {
             let label = context.dataset.label || '';
             const value = context.parsed.y;
-            const marketShare = (context.dataset as any).marketShareData?.[context.dataIndex];
             
             if (value !== null) {
               const siteName = label.split(' (')[0];
               label = `${siteName}: ${value.toLocaleString()}`;
-              
-              if (marketShare !== null && marketShare !== undefined) {
-                label += ` (${marketShare}%)`;
-              }
             }
             
             return label;

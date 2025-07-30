@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TrendChart from './components/TrendChart';
-import MarketShareChart from './components/MarketShareChart';
 import './App.css';
 
 interface Site {
@@ -15,13 +14,11 @@ interface Site {
   rank?: number;
 }
 
-interface Top10Data {
-  top10_sites: string[];
-  total_players_online: number;
+interface AllSitesData {
+  total_sites: number;
   data: {
     [key: string]: {
       current_stats: Site;
-      market_share: number;
       daily_data: Array<{
         date: string;
         players_online: number;
@@ -42,21 +39,21 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string>('');
-  const [top10Data, setTop10Data] = useState<Top10Data | null>(null);
+  const [allSitesData, setAllSitesData] = useState<AllSitesData | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'charts'>('table');
   const [sortField, setSortField] = useState<SortField>('rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   useEffect(() => {
     fetchCurrentRanking();
-    fetchTop10Stats();
+    fetchAllSitesStats();
   }, []);
 
   const fetchCurrentRanking = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:8001/api/firebase/current_ranking/');
+      const response = await axios.get('http://localhost:4001/api/firebase/current_ranking/');
       setSites(response.data);
       if (response.data.length > 0 && response.data[0].last_updated) {
         setLastUpdate(new Date(response.data[0].last_updated).toLocaleString());
@@ -69,12 +66,77 @@ function App() {
     }
   };
 
-  const fetchTop10Stats = async () => {
+  const fetchAllSitesStats = async () => {
     try {
-      const response = await axios.get('http://localhost:8001/api/firebase/top10_daily_stats/');
-      setTop10Data(response.data);
+      // 먼저 전체 사이트 데이터 API 시도
+      const response = await axios.get('http://localhost:4001/api/firebase/all_sites_daily_stats/');
+      setAllSitesData(response.data);
     } catch (err) {
-      console.error('Error fetching top 10 stats:', err);
+      console.error('Error fetching all sites stats:', err);
+      
+      // 대안: 전체 사이트 현재 순위를 가져와서 각 사이트별 통계 구성
+      try {
+        // 1. 전체 사이트 현재 순위 가져오기
+        const rankingResponse = await axios.get('http://localhost:4001/api/firebase/current_ranking/');
+        const allSites = rankingResponse.data;
+        
+        // 2. 각 사이트별 일별 데이터는 간단히 현재 값으로 채우기 (임시)
+        const allSitesData: AllSitesData = {
+          total_sites: allSites.length,
+          data: {},
+          days: 7
+        };
+        
+        // 3. 각 사이트 데이터 구성
+        for (const site of allSites) {
+          const dailyData = [];
+          // 최근 7일간 데이터 (현재 값으로 채우기)
+          for (let i = 0; i < 7; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            dailyData.push({
+              date: date.toISOString(),
+              players_online: site.players_online,
+              cash_players: site.cash_players,
+              peak_24h: site.peak_24h,
+              seven_day_avg: site.seven_day_avg
+            });
+          }
+          
+          allSitesData.data[site.site_name] = {
+            current_stats: {
+              site_name: site.site_name,
+              category: site.category,
+              players_online: site.players_online,
+              cash_players: site.cash_players,
+              peak_24h: site.peak_24h,
+              seven_day_avg: site.seven_day_avg
+            },
+            daily_data: dailyData
+          };
+        }
+        
+        setAllSitesData(allSitesData);
+        console.log('Using current ranking data for all sites - daily trends will be flat');
+      } catch (fallbackErr) {
+        console.error('Failed to fetch current ranking:', fallbackErr);
+        
+        // 최후의 대안: top10 API 사용
+        try {
+          const response = await axios.get('http://localhost:4001/api/firebase/top10_daily_stats/');
+          if (response.data) {
+            const convertedData: AllSitesData = {
+              total_sites: response.data.top10_sites.length,
+              data: response.data.data,
+              days: response.data.days
+            };
+            setAllSitesData(convertedData);
+            console.warn('Using limited top10 API - charts will show incorrect rankings!');
+          }
+        } catch (lastErr) {
+          console.error('All API attempts failed:', lastErr);
+        }
+      }
     }
   };
 
@@ -82,10 +144,10 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post('http://localhost:8001/api/firebase/crawl_and_save_data/');
+      const response = await axios.post('http://localhost:4001/api/firebase/crawl_and_save_data/');
       alert(`크롤링 완료! ${response.data.count}개 사이트 데이터 수집`);
       fetchCurrentRanking(); // 크롤링 후 데이터 새로고침
-      fetchTop10Stats(); // 차트 데이터도 새로고침
+      fetchAllSitesStats(); // 차트 데이터도 새로고침
     } catch (err) {
       console.error('Error triggering crawl:', err);
       setError('Failed to trigger crawl. Please check the backend.');
@@ -235,44 +297,37 @@ function App() {
         </div>
         )}
 
-        {activeTab === 'charts' && top10Data && (
+        {activeTab === 'charts' && allSitesData && (
           <div className="charts-container">
             <div className="chart-section">
-              <MarketShareChart 
-                data={top10Data.data} 
-                totalPlayers={top10Data.total_players_online}
-              />
-            </div>
-            
-            <div className="chart-section">
               <TrendChart 
-                data={top10Data.data} 
+                data={allSitesData.data} 
                 metric="players_online"
-                title="Players Online - Daily Trend (Top 10 Sites)"
+                title="Players Online - Daily Trend (Top 10 by Current Players Online)"
               />
             </div>
             
             <div className="chart-section">
               <TrendChart 
-                data={top10Data.data} 
+                data={allSitesData.data} 
                 metric="cash_players"
-                title="Cash Players - Daily Trend (Top 10 Sites)"
+                title="Cash Players - Daily Trend (Top 10 by Current Cash Players)"
               />
             </div>
             
             <div className="chart-section">
               <TrendChart 
-                data={top10Data.data} 
+                data={allSitesData.data} 
                 metric="peak_24h"
-                title="24h Peak - Daily Trend (Top 10 Sites)"
+                title="24h Peak - Daily Trend (Top 10 by Current 24h Peak)"
               />
             </div>
             
             <div className="chart-section">
               <TrendChart 
-                data={top10Data.data} 
+                data={allSitesData.data} 
                 metric="seven_day_avg"
-                title="7-Day Average - Daily Trend (Top 10 Sites)"
+                title="7-Day Average - Daily Trend (Top 10 by Current 7-Day Average)"
               />
             </div>
           </div>

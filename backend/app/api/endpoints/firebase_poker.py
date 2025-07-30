@@ -248,6 +248,132 @@ async def get_top10_daily_stats(days: int = 7):
         logger.error(f"상위 10개 사이트 일간 통계 조회 실패: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/top10_by_category/")
+async def get_top10_by_category(days: int = 7):
+    """각 카테고리별 상위 10개 사이트의 일간 통계를 가져옵니다."""
+    try:
+        db = get_firestore_client()
+        
+        # 먼저 현재 순위를 가져와서 각 카테고리별 상위 10개 사이트 확인
+        current_ranking = []
+        sites_ref = db.collection('sites')
+        
+        for site_doc in sites_ref.stream():
+            site_data = site_doc.to_dict()
+            site_name = site_doc.id
+            
+            # 최신 트래픽 로그 가져오기
+            traffic_logs = site_doc.reference.collection('traffic_logs').order_by('collected_at', direction=firestore.Query.DESCENDING).limit(1).stream()
+            
+            for log in traffic_logs:
+                log_data = log.to_dict()
+                current_ranking.append({
+                    "site_name": site_name,
+                    "players_online": log_data.get('players_online', 0),
+                    "cash_players": log_data.get('cash_players', 0),
+                    "peak_24h": log_data.get('peak_24h', 0),
+                    "seven_day_avg": log_data.get('seven_day_avg', 0)
+                })
+                break
+        
+        # 각 카테고리별로 정렬하여 상위 10개 선택
+        categories = {
+            'players_online': sorted(current_ranking, key=lambda x: x['players_online'], reverse=True)[:10],
+            'cash_players': sorted(current_ranking, key=lambda x: x['cash_players'], reverse=True)[:10],
+            'peak_24h': sorted(current_ranking, key=lambda x: x['peak_24h'], reverse=True)[:10],
+            'seven_day_avg': sorted(current_ranking, key=lambda x: x['seven_day_avg'], reverse=True)[:10]
+        }
+        
+        # 각 카테고리별 전체 합계 계산
+        totals = {
+            'players_online': sum(site['players_online'] for site in current_ranking),
+            'cash_players': sum(site['cash_players'] for site in current_ranking),
+            'peak_24h': sum(site['peak_24h'] for site in current_ranking),
+            'seven_day_avg': sum(site['seven_day_avg'] for site in current_ranking)
+        }
+        
+        # 먼저 각 날짜별 전체 플레이어 수 계산
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+        daily_totals = {}
+        
+        # 모든 사이트의 일별 데이터 수집
+        for site_doc in sites_ref.stream():
+            site_ref = site_doc.reference
+            traffic_logs = site_ref.collection('traffic_logs').where('collected_at', '>=', cutoff_date).stream()
+            
+            for log in traffic_logs:
+                log_data = log.to_dict()
+                date_str = log_data['collected_at'].strftime('%Y-%m-%d')
+                if date_str not in daily_totals:
+                    daily_totals[date_str] = {
+                        'players_online': 0,
+                        'cash_players': 0,
+                        'peak_24h': 0,
+                        'seven_day_avg': 0
+                    }
+                daily_totals[date_str]['players_online'] += log_data.get('players_online', 0)
+                daily_totals[date_str]['cash_players'] += log_data.get('cash_players', 0)
+                daily_totals[date_str]['peak_24h'] += log_data.get('peak_24h', 0)
+                daily_totals[date_str]['seven_day_avg'] += log_data.get('seven_day_avg', 0)
+        
+        # 각 카테고리별 결과 구성
+        result = {}
+        
+        for category, top10_sites in categories.items():
+            category_data = {}
+            
+            for site in top10_sites:
+                site_name = site['site_name']
+                site_ref = db.collection('sites').document(site_name)
+                
+                # 지난 n일간의 데이터
+                traffic_logs = site_ref.collection('traffic_logs').where('collected_at', '>=', cutoff_date).order_by('collected_at').stream()
+                
+                daily_data = []
+                for log in traffic_logs:
+                    log_data = log.to_dict()
+                    date_str = log_data['collected_at'].strftime('%Y-%m-%d')
+                    
+                    # 해당 카테고리의 값과 점유율 계산
+                    value = log_data.get(category, 0)
+                    daily_total = daily_totals.get(date_str, {}).get(category, 0)
+                    daily_market_share = round((value / daily_total) * 100, 2) if daily_total > 0 else 0
+                    
+                    daily_data.append({
+                        'date': log_data['collected_at'].isoformat(),
+                        'value': value,
+                        'market_share': daily_market_share,
+                        'players_online': log_data.get('players_online', 0),
+                        'cash_players': log_data.get('cash_players', 0),
+                        'peak_24h': log_data.get('peak_24h', 0),
+                        'seven_day_avg': log_data.get('seven_day_avg', 0)
+                    })
+                
+                # 현재 시점 점유율 계산
+                current_value = site[category]
+                market_share = (current_value / totals[category] * 100) if totals[category] > 0 else 0
+                
+                category_data[site_name] = {
+                    'current_stats': site,
+                    'market_share': round(market_share, 2),
+                    'daily_data': daily_data
+                }
+            
+            result[category] = {
+                'top10_sites': [site['site_name'] for site in top10_sites],
+                'total': totals[category],
+                'data': category_data
+            }
+        
+        return {
+            'categories': result,
+            'days': days
+        }
+        
+    except Exception as e:
+        logger.error(f"카테고리별 상위 10개 사이트 조회 실패: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/current_ranking/")
 async def get_current_ranking():
     """현재 시점의 사이트 순위를 가져옵니다."""
@@ -287,4 +413,70 @@ async def get_current_ranking():
         return ranking
     except Exception as e:
         logger.error(f"현재 순위 조회 실패: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/all_sites_daily_stats/")
+async def get_all_sites_daily_stats(days: int = 7):
+    """모든 사이트의 일간 통계를 가져옵니다."""
+    try:
+        db = get_firestore_client()
+        
+        # 먼저 현재 모든 사이트의 정보 가져오기
+        current_ranking = []
+        sites_ref = db.collection('sites')
+        
+        for site_doc in sites_ref.stream():
+            site_data = site_doc.to_dict()
+            site_name = site_doc.id
+            
+            # 최신 트래픽 로그 가져오기
+            traffic_logs = site_doc.reference.collection('traffic_logs').order_by('collected_at', direction=firestore.Query.DESCENDING).limit(1).stream()
+            
+            for log in traffic_logs:
+                log_data = log.to_dict()
+                current_ranking.append({
+                    "site_name": site_name,
+                    "category": site_data.get('category', 'UNKNOWN'),
+                    "players_online": log_data.get('players_online', 0),
+                    "cash_players": log_data.get('cash_players', 0),
+                    "peak_24h": log_data.get('peak_24h', 0),
+                    "seven_day_avg": log_data.get('seven_day_avg', 0)
+                })
+                break
+        
+        # 각 사이트의 일간 데이터 가져오기
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+        all_sites_data = {}
+        
+        for site in current_ranking:
+            site_name = site['site_name']
+            site_ref = db.collection('sites').document(site_name)
+            
+            # 지난 n일간의 데이터
+            traffic_logs = site_ref.collection('traffic_logs').where('collected_at', '>=', cutoff_date).order_by('collected_at').stream()
+            
+            daily_data = []
+            for log in traffic_logs:
+                log_data = log.to_dict()
+                daily_data.append({
+                    'date': log_data['collected_at'].isoformat(),
+                    'players_online': log_data.get('players_online', 0),
+                    'cash_players': log_data.get('cash_players', 0),
+                    'peak_24h': log_data.get('peak_24h', 0),
+                    'seven_day_avg': log_data.get('seven_day_avg', 0)
+                })
+            
+            all_sites_data[site_name] = {
+                'current_stats': site,
+                'daily_data': daily_data
+            }
+        
+        return {
+            'total_sites': len(all_sites_data),
+            'data': all_sites_data,
+            'days': days
+        }
+        
+    except Exception as e:
+        logger.error(f"전체 사이트 일간 통계 조회 실패: {e}")
         raise HTTPException(status_code=500, detail=str(e))
