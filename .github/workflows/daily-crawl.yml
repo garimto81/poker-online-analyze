@@ -1,0 +1,63 @@
+name: Daily Poker Data Crawl
+
+on:
+  schedule:
+    # 매일 UTC 18:00 (한국시간 오전 3시)에 실행
+    - cron: '0 18 * * *'
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Create Firebase key from secret
+      env:
+        FIREBASE_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+      run: |
+        mkdir -p backend/key
+        echo "$FIREBASE_KEY" > backend/key/firebase-service-account-key.json
+    
+    - name: Run crawler
+      run: |
+        cd backend
+        python -c "
+        import sys
+        sys.path.append('.')
+        from app.services.poker_crawler import LivePokerScoutCrawler, upload_to_firestore_efficiently
+        
+        print('=== GitHub Actions 크롤링 시작 ===')
+        try:
+            crawler = LivePokerScoutCrawler()
+            crawled_data = crawler.crawl_pokerscout_data()
+            
+            if crawled_data:
+                print(f'크롤링 성공: {len(crawled_data)}개 사이트')
+                upload_to_firestore_efficiently(crawled_data)
+                print('Firebase 업로드 완료')
+            else:
+                print('크롤링 실패')
+                sys.exit(1)
+        except Exception as e:
+            print(f'오류 발생: {e}')
+            sys.exit(1)
+        print('=== 크롤링 완료 ===')
+        "
+    
+    - name: Clean up
+      if: always()
+      run: |
+        rm -rf backend/key

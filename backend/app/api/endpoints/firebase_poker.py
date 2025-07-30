@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 import firebase_admin
@@ -41,8 +41,16 @@ def get_firestore_client():
         raise HTTPException(status_code=500, detail="Firebase 초기화 실패")
 
 @router.post("/crawl_and_save_data/")
-async def crawl_and_save_data():
+async def crawl_and_save_data(x_api_key: Optional[str] = Header(None)):
     """PokerScout 데이터를 크롤링하고 Firebase에 저장합니다."""
+    # API 키 검증 (프로덕션에서는 환경 변수 사용)
+    import os
+    expected_api_key = os.environ.get('CRAWL_API_KEY', 'default-dev-key-12345')
+    
+    # API 키가 제공되었고 일치하지 않으면 거부
+    if x_api_key and x_api_key != expected_api_key:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    
     try:
         crawler = LivePokerScoutCrawler()
         crawled_data = crawler.crawl_pokerscout_data()
