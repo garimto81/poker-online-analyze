@@ -44,6 +44,9 @@ function App() {
   const [sortField, setSortField] = useState<SortField>('rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
+  // API URL 환경 변수 설정
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4001';
+
   useEffect(() => {
     fetchCurrentRanking();
     fetchAllSitesStats();
@@ -53,7 +56,7 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:4001/api/firebase/current_ranking/');
+      const response = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`);
       setSites(response.data);
       if (response.data.length > 0 && response.data[0].last_updated) {
         setLastUpdate(new Date(response.data[0].last_updated).toLocaleString());
@@ -69,7 +72,7 @@ function App() {
   const fetchAllSitesStats = async () => {
     try {
       // 먼저 전체 사이트 데이터 API 시도
-      const response = await axios.get('http://localhost:4001/api/firebase/all_sites_daily_stats/');
+      const response = await axios.get(`${API_BASE_URL}/api/firebase/all_sites_daily_stats/`);
       setAllSitesData(response.data);
     } catch (err) {
       console.error('Error fetching all sites stats:', err);
@@ -77,7 +80,7 @@ function App() {
       // 대안: 전체 사이트 현재 순위를 가져와서 각 사이트별 통계 구성
       try {
         // 1. 전체 사이트 현재 순위 가져오기
-        const rankingResponse = await axios.get('http://localhost:4001/api/firebase/current_ranking/');
+        const rankingResponse = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`);
         const allSites = rankingResponse.data;
         
         // 2. 각 사이트별 일별 데이터는 간단히 현재 값으로 채우기 (임시)
@@ -123,7 +126,7 @@ function App() {
         
         // 최후의 대안: top10 API 사용
         try {
-          const response = await axios.get('http://localhost:4001/api/firebase/top10_daily_stats/');
+          const response = await axios.get(`${API_BASE_URL}/api/firebase/top10_daily_stats/`);
           if (response.data) {
             const convertedData: AllSitesData = {
               total_sites: response.data.top10_sites.length,
@@ -144,7 +147,7 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post('http://localhost:4001/api/firebase/crawl_and_save_data/');
+      const response = await axios.post(`${API_BASE_URL}/api/firebase/crawl_and_save_data/`);
       alert(`크롤링 완료! ${response.data.count}개 사이트 데이터 수집`);
       fetchCurrentRanking(); // 크롤링 후 데이터 새로고침
       fetchAllSitesStats(); // 차트 데이터도 새로고침

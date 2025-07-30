@@ -10,7 +10,14 @@
 
 - 포트 변경: Backend (8001→4001), Frontend (3001→4000)
 - 차트 개선: 각 지표별로 독립적인 상위 10개 사이트 표시
-- Windows Task Scheduler를 통한 자동 크롤링 지원
+- Windows Task Scheduler 및 GitHub Actions 자동 크롤링 지원
+- **웹 배포 지원**: Render (백엔드) + Vercel (프론트엔드)
+
+## 🌐 온라인 데모
+
+- **Frontend**: https://poker-analyzer-frontend.vercel.app
+- **Backend API**: https://poker-analyzer-backend.onrender.com
+- **API Docs**: https://poker-analyzer-backend.onrender.com/docs
 
 ## 주요 기능
 

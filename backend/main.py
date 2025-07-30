@@ -13,9 +13,24 @@ app = FastAPI(
 )
 
 # CORS 설정 - 프론트엔드와의 통신을 위해
+import os
+
+# 개발/프로덕션 환경에 따른 CORS 설정
+allowed_origins = [
+    "http://localhost:4000",
+    "http://localhost:4001", 
+    "http://localhost:4002",
+    "https://poker-analyzer-frontend.vercel.app",
+    "https://*.vercel.app"
+]
+
+# 환경 변수로 추가 도메인 허용
+if os.environ.get("FRONTEND_URL"):
+    allowed_origins.append(os.environ.get("FRONTEND_URL"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4000", "http://localhost:4001", "http://localhost:4002"],  # 프론트엔드 URL
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
