@@ -1,23 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
   Filler,
   ChartOptions
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -45,6 +47,8 @@ interface SiteData {
   daily_data: DailyData[];
 }
 
+type ChartType = 'line' | 'stacked' | 'bar';
+
 interface TrendChartProps {
   data: { [key: string]: SiteData };
   metric: 'players_online' | 'cash_players' | 'peak_24h' | 'seven_day_avg';
@@ -52,6 +56,7 @@ interface TrendChartProps {
 }
 
 const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
+  const [chartType, setChartType] = useState<ChartType>('stacked');
   // Generate colors for each site
   const colors = [
     '#FF6384',
@@ -80,7 +85,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
   });
   const sortedDates = Array.from(allDates).sort();
 
-  // Prepare datasets
+  // Prepare datasets based on chart type
   const datasets = sortedSites.map(([siteName, siteData], index) => {
     const dataPoints = sortedDates.map(date => {
       const dayData = siteData.daily_data.find(
@@ -89,17 +94,42 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
       return dayData ? dayData[metric] : null;
     });
 
-    return {
+    const baseDataset = {
       label: `${siteName} (현재: ${siteData.current_stats[metric].toLocaleString()})`,
       data: dataPoints,
       borderColor: colors[index % colors.length],
       backgroundColor: colors[index % colors.length] + '40',
-      fill: index === 0 ? 'origin' : '-1',
-      tension: 0.1,
-      pointRadius: 2,
-      pointHoverRadius: 4,
       borderWidth: 1
     };
+
+    // Configure dataset based on chart type
+    switch (chartType) {
+      case 'stacked':
+        return {
+          ...baseDataset,
+          fill: index === 0 ? 'origin' : '-1',
+          tension: 0.1,
+          pointRadius: 2,
+          pointHoverRadius: 4
+        };
+      case 'line':
+        return {
+          ...baseDataset,
+          fill: false,
+          tension: 0.1,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          backgroundColor: colors[index % colors.length] + '20'
+        };
+      case 'bar':
+        return {
+          ...baseDataset,
+          backgroundColor: colors[index % colors.length] + '80',
+          borderWidth: 0
+        };
+      default:
+        return baseDataset;
+    }
   });
 
   const chartData = {
@@ -107,7 +137,8 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
     datasets: datasets
   };
 
-  const options: ChartOptions<'line'> = {
+  const getChartOptions = (): ChartOptions<'line' | 'bar'> => {
+    return {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -149,7 +180,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
     scales: {
       x: {
         display: true,
-        stacked: true,
+        stacked: chartType === 'stacked' || chartType === 'bar',
         title: {
           display: true,
           text: 'Date'
@@ -157,7 +188,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
       },
       y: {
         display: true,
-        stacked: true,
+        stacked: chartType === 'stacked' || chartType === 'bar',
         beginAtZero: true,
         title: {
           display: true,
@@ -172,11 +203,80 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
         }
       }
     }
+    };
+  };
+
+  const renderChart = () => {
+    const options = getChartOptions();
+    
+    if (chartType === 'bar') {
+      return <Bar data={chartData} options={options as ChartOptions<'bar'>} />;
+    } else {
+      return <Line data={chartData} options={options as ChartOptions<'line'>} />;
+    }
   };
 
   return (
-    <div style={{ height: '400px', marginBottom: '2rem' }}>
-      <Line data={chartData} options={options} />
+    <div style={{ marginBottom: '2rem' }}>
+      {/* Chart Type Selection Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '10px', 
+        marginBottom: '15px',
+        justifyContent: 'center',
+        flexWrap: 'wrap'
+      }}>
+        <button
+          onClick={() => setChartType('line')}
+          style={{
+            padding: '8px 16px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            backgroundColor: chartType === 'line' ? '#007bff' : '#fff',
+            color: chartType === 'line' ? '#fff' : '#333',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: chartType === 'line' ? 'bold' : 'normal'
+          }}
+        >
+          📈 선형 차트
+        </button>
+        <button
+          onClick={() => setChartType('stacked')}
+          style={{
+            padding: '8px 16px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            backgroundColor: chartType === 'stacked' ? '#007bff' : '#fff',
+            color: chartType === 'stacked' ? '#fff' : '#333',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: chartType === 'stacked' ? 'bold' : 'normal'
+          }}
+        >
+          📊 누적 차트
+        </button>
+        <button
+          onClick={() => setChartType('bar')}
+          style={{
+            padding: '8px 16px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            backgroundColor: chartType === 'bar' ? '#007bff' : '#fff',
+            color: chartType === 'bar' ? '#fff' : '#333',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: chartType === 'bar' ? 'bold' : 'normal'
+          }}
+        >
+          📊 막대 차트
+        </button>
+      </div>
+      
+      {/* Chart Container */}
+      <div style={{ height: '400px' }}>
+        {renderChart()}
+      </div>
     </div>
   );
 };
