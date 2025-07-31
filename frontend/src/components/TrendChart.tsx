@@ -8,6 +8,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
   ChartOptions
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
@@ -19,7 +20,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 interface DailyData {
@@ -91,10 +93,12 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
       label: `${siteName} (현재: ${siteData.current_stats[metric].toLocaleString()})`,
       data: dataPoints,
       borderColor: colors[index % colors.length],
-      backgroundColor: colors[index % colors.length] + '20',
+      backgroundColor: colors[index % colors.length] + '40',
+      fill: index === 0 ? 'origin' : '-1',
       tension: 0.1,
-      pointRadius: 3,
-      pointHoverRadius: 5
+      pointRadius: 2,
+      pointHoverRadius: 4,
+      borderWidth: 1
     };
   });
 
@@ -145,6 +149,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
     scales: {
       x: {
         display: true,
+        stacked: true,
         title: {
           display: true,
           text: 'Date'
@@ -152,6 +157,8 @@ const TrendChart: React.FC<TrendChartProps> = ({ data, metric, title }) => {
       },
       y: {
         display: true,
+        stacked: true,
+        beginAtZero: true,
         title: {
           display: true,
           text: metric === 'players_online' ? 'Players' : 
