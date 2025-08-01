@@ -1,4 +1,4 @@
-# 🎰 포커 온라인 분석 프로젝트 기획서 v3.0
+# 🎰 포커 온라인 분석 프로젝트 기획서 v3.1
 
 ## 📋 프로젝트 개요
 
@@ -6,9 +6,9 @@
 **Poker Online Analyze** - 온라인 포커 사이트 트래픽 분석 및 시각화 플랫폼
 
 ### 버전 정보
-- **현재 버전**: v3.0 (2025-07-31)
-- **주요 업데이트**: 차트 타입 선택 기능 추가 (선형/누적/막대 차트)
-- **이전 버전**: v2.1.0 (시장 점유율 분석), v2.0 (누적 영역 차트)
+- **현재 버전**: v3.1 (2025-08-01)
+- **주요 업데이트**: 누적 차트 수치 표시 개선 및 스마트 툴팁 구현
+- **이전 버전**: v3.0 (차트 타입 선택), v2.1.0 (시장 점유율 분석), v2.0 (누적 영역 차트)
 
 ### 프로젝트 목적
 PokerScout.com에서 59개 온라인 포커 사이트의 실시간 트래픽 데이터를 수집하여 트렌드 분석과 비교 정보를 제공하는 웹 애플리케이션
@@ -74,7 +74,7 @@ PokerScout.com에서 59개 온라인 포커 사이트의 실시간 트래픽 데
 - **GG Poker 네트워크**: 특별 카테고리 하이라이팅
 - **요약 통계**: 전체 사이트 수, 총 플레이어 수, 시장 점유율
 
-### 3. **차트 시각화 시스템 (v3.0 신규)**
+### 3. **차트 시각화 시스템 (v3.1 최신)**
 
 #### 3.1 차트 타입 선택 기능
 사용자가 데이터를 다양한 방식으로 시각화할 수 있도록 3가지 차트 타입 제공:
@@ -87,13 +87,14 @@ PokerScout.com에서 59개 온라인 포커 사이트의 실시간 트래픽 데
   - 각 사이트의 독립적인 변화 추세 확인
   - 사이트간 성장률 비교 최적화
 
-##### 📊 누적 차트 (Stacked Area Chart)
+##### 📊 누적 차트 (Stacked Area Chart) - v3.1 개선
 - **용도**: 전체 시장 규모와 사이트별 기여도 분석
 - **특징**:
   - `fill: 'origin'/-1` (누적 영역 표시)
   - `stacked: true` (Y축 누적)
-  - 전체 온라인 포커 시장 규모 변화 시각화
-  - 개별 사이트의 전체 시장 내 기여도 확인
+  - **실제 수치 표시**: 백분율이 아닌 플레이어 수로 표시
+  - **전체 시장 표현**: 상위 10개 + 나머지 'Others (X sites)'로 그룹화
+  - **스마트 툴팁**: 마우스 호버 시 차트 외부에 툴팁 표시
 
 ##### 📊 막대 차트 (Bar Chart)
 - **용도**: 시점별 사이트간 비교 분석
@@ -129,7 +130,32 @@ switch (chartType) {
 }
 ```
 
-### 4. 사용자 인터페이스
+### 4. **스마트 툴팁 시스템 (v3.1 신규)**
+
+#### 4.1 외부 툴팁 기능
+- **마우스 호버 전용**: 평상시에는 깔끔한 차트만 표시
+- **차트 비차단**: 툴팁이 차트를 가리지 않도록 외부에 표시
+- **자동 위치 조정**: 화면 경계 감지하여 툴팁 위치 자동 조정
+- **상위 10개 표시**: 많은 사이트 중 상위 10개만 정렬하여 표시
+- **스마트 포맷팅**: K/M 단위 자동 축약 (예: 25K, 1.2M)
+
+#### 4.2 기술적 구현
+```typescript
+// 외부 툴팁 생성
+external: function(context) {
+  const tooltipEl = document.getElementById('chartjs-tooltip');
+  // 동적 HTML 생성 및 위치 계산
+  // 화면 경계 체크 및 자동 위치 조정
+}
+```
+
+#### 4.3 UX 개선사항
+- **색상 인디케이터**: 각 사이트별 색상 구분점
+- **정렬된 표시**: 플레이어 수 기준 내림차순 정렬
+- **추가 사이트 알림**: 10개 초과 시 "...and X more" 표시
+- **부드러운 애니메이션**: 0.1초 전환 효과
+
+### 5. 사용자 인터페이스
 - **반응형 디자인**: 모바일/태블릿/데스크톱 지원
 - **탭 네비게이션**: Table View ↔ Charts View
 - **실시간 갱신**: 수동 새로고침 버튼
@@ -199,20 +225,23 @@ GitHub Actions (매일 3AM KST) → Python 크롤러 → 데이터 저장
 - **Error Handling**: try-catch 블록 및 fallback 로직
 - **Performance**: Chart.js 최적화 및 데이터 캐싱
 
-### 테스트 결과 (v3.0)
-- ✅ **소스 코드 검증**: 차트 선택 기능 완전 구현
-- ✅ **빌드 시스템**: npm build 성공 (122.47 kB gzipped)
-- ✅ **배포 프로세스**: main 브랜치 push 완료
-- ✅ **기능 테스트**: 3가지 차트 타입 전환 확인
-- ✅ **로컬 서버**: HTTP 서버 실행 및 브라우저 오픈 성공
+### 테스트 결과 (v3.1)
+- ✅ **소스 코드 검증**: 누적 차트 수치 표시 및 툴팁 시스템 완전 구현
+- ✅ **빌드 시스템**: npm build 성공 (123.24 kB gzipped)
+- ✅ **배포 프로세스**: GitHub Actions 배포 성공 (run #22)
+- ✅ **기능 테스트**: 전체 시장 표현 및 스마트 툴팁 확인
+- ✅ **로컬 서버**: TypeScript 컴파일 오류 해결 완료
+- ✅ **CI/CD**: 빌드 실패 문제 진단 및 해결
 
 ## 📈 성능 및 최적화
 
 ### 프론트엔드 최적화
 - **Code Splitting**: React.lazy를 통한 지연 로딩
 - **Memoization**: React.memo 및 useMemo 활용
-- **Bundle Size**: 122.47 kB (gzipped) 최적화
+- **Bundle Size**: 123.24 kB (gzipped) 최적화
 - **Caching**: 브라우저 캐시 활용
+- **Chart Optimization**: 외부 툴팁으로 렌더링 성능 향상
+- **Memory Management**: 컴포넌트 언마운트 시 DOM 정리
 
 ### 백엔드 최적화
 - **Serverless**: 사용량 기반 자동 스케일링
@@ -254,6 +283,25 @@ GitHub Actions (매일 3AM KST) → Python 크롤러 → 데이터 저장
 
 ## 📝 변경 이력
 
+### v3.1 (2025-08-01) - 누적 차트 개선 및 스마트 툴팁
+- ✨ **NEW**: 스마트 툴팁 시스템 구현
+  - 마우스 호버 시에만 차트 외부에 툴팁 표시
+  - 화면 경계 자동 감지 및 위치 조정
+  - 상위 10개 사이트만 정렬하여 표시
+- 🔧 **IMPROVE**: 누적 차트 데이터 표현 방식 개선
+  - 100% 누적에서 실제 수치 누적으로 변경
+  - 상위 10개 + 나머지 'Others (X sites)' 그룹화
+  - Y축 레이블을 실제 플레이어 수로 변경
+- 🔧 **IMPROVE**: 전체 시장 규모 정확한 표현
+  - 모든 59개 사이트 데이터 포함
+  - 11위 이하 사이트들을 'Others'로 통합 표시
+- 🐛 **FIX**: TypeScript 빌드 오류 해결
+  - datalabels 플러그인 옵션 제거
+  - 사용하지 않는 import 정리
+- 🚀 **DEPLOY**: GitHub Actions 배포 문제 해결
+  - 배포 실패 원인 분석 및 수정
+  - CI/CD 파이프라인 안정화
+
 ### v3.0 (2025-07-31)
 - ✨ **NEW**: 차트 타입 선택 기능 (선형/누적/막대)
 - ✨ **NEW**: Chart.js BarElement 지원 추가
@@ -294,4 +342,63 @@ GitHub Actions (매일 3AM KST) → Python 크롤러 → 데이터 저장
 
 ---
 
-*이 문서는 Claude Code와 함께 작성되었습니다. 최종 업데이트: 2025-07-31*
+*이 문서는 Claude Code와 함께 작성되었습니다. 최종 업데이트: 2025-08-01*
+
+## 🔧 기술적 구현 세부사항 (v3.1)
+
+### 누적 차트 데이터 처리 로직
+```typescript
+// 전체 사이트 분류
+const allSortedSites = Object.entries(data)
+  .sort(([, a], [, b]) => b.current_stats[metric] - a.current_stats[metric]);
+const top10Sites = allSortedSites.slice(0, 10);
+const etcSites = allSortedSites.slice(10);
+
+// 11위 이하 사이트들의 합계 계산
+const etcValuesByDate: { [date: string]: number } = {};
+sortedDates.forEach(date => {
+  let etcTotal = 0;
+  etcSites.forEach(([, siteData]) => {
+    const dayData = siteData.daily_data.find(
+      d => new Date(d.date).toLocaleDateString() === date
+    );
+    if (dayData) {
+      etcTotal += dayData[metric];
+    }
+  });
+  etcValuesByDate[date] = etcTotal;
+});
+```
+
+### 외부 툴팁 구현
+```typescript
+tooltip: {
+  enabled: false, // 기본 툴팁 비활성화
+  external: function(context) {
+    // 동적 DOM 요소 생성
+    const tooltipEl = document.getElementById('chartjs-tooltip') || 
+      createTooltipElement();
+    
+    // 상위 10개 사이트만 필터링 및 정렬
+    const sortedItems = tooltip.dataPoints
+      .filter((item: any) => item.raw > 0)
+      .sort((a: any, b: any) => b.raw - a.raw)
+      .slice(0, 10);
+    
+    // 화면 경계 체크 및 위치 조정
+    const tooltipX = position.left + tooltip.caretX + 20;
+    const tooltipY = position.top + window.pageYOffset + tooltip.caretY - 50;
+    
+    if (tooltipX + tooltipWidth > window.innerWidth) {
+      tooltipDiv.style.left = (position.left + tooltip.caretX - tooltipWidth - 20) + 'px';
+    }
+  }
+}
+```
+
+### 배포 문제 해결 과정
+1. **오류 발생**: TypeScript 컴파일 오류 (datalabels 타입 불일치)
+2. **원인 분석**: 플러그인 제거 후 옵션 설정 잔존
+3. **해결 방법**: datalabels 옵션 완전 제거
+4. **검증**: 로컬 빌드 테스트 → GitHub Actions 재배포
+5. **결과**: 성공적인 배포 완료 (run #22)
