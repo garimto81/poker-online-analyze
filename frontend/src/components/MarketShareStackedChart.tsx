@@ -12,6 +12,7 @@ import {
   ChartOptions
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 ChartJS.register(
   CategoryScale,
@@ -21,7 +22,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler // 필요한 플러그인 추가
+  Filler, // 필요한 플러그인 추가
+  ChartDataLabels // 데이터 레이블 플러그인 추가
 );
 
 interface DailyData {
@@ -163,6 +165,8 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
       tooltip: {
         mode: 'index',
         intersect: false,
+        position: 'nearest',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         callbacks: {
           label: function(context) {
             const label = context.dataset.label || '';
@@ -175,6 +179,42 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
             return label;
           }
         }
+      },
+      datalabels: {
+        display: function(context: any) {
+          // 상위 5개 사이트의 마지막 데이터 포인트만 표시
+          const datasetIndex = context.datasetIndex;
+          const dataIndex = context.dataIndex;
+          const isLastPoint = dataIndex === sortedDates.length - 1;
+          const isTopSite = datasetIndex < 5;
+          return isLastPoint && isTopSite;
+        },
+        align: 'end' as const,
+        anchor: 'end' as const,
+        offset: 10,
+        formatter: function(value: number) {
+          // 천 단위 구분 및 K/M 단위로 축약
+          if (value >= 1000000) {
+            return (value / 1000000).toFixed(1) + 'M';
+          } else if (value >= 1000) {
+            return (value / 1000).toFixed(0) + 'K';
+          }
+          return value.toString();
+        },
+        color: function(context: any) {
+          return context.dataset.borderColor;
+        },
+        font: {
+          weight: 'bold',
+          size: 11
+        },
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        borderColor: function(context: any) {
+          return context.dataset.borderColor;
+        },
+        borderRadius: 4,
+        borderWidth: 1,
+        padding: 4
       }
     },
     scales: {
