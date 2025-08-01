@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,10 +9,10 @@ import {
   Tooltip,
   Legend,
   Filler,
-  ChartOptions
+  ChartOptions,
+  TooltipItem
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 ChartJS.register(
   CategoryScale,
@@ -22,8 +22,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler, // 필요한 플러그인 추가
-  ChartDataLabels // 데이터 레이블 플러그인 추가
+  Filler // 필요한 플러그인 추가
 );
 
 interface DailyData {
@@ -52,6 +51,7 @@ interface MarketShareStackedChartProps {
 }
 
 const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data, metric, title }) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   // Generate colors for each site
   const colors = [
     '#FF6384',
@@ -163,58 +163,122 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
         }
       },
       tooltip: {
+        enabled: false, // 기본 툴팁 비활성화
         mode: 'index',
         intersect: false,
-        position: 'nearest',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        callbacks: {
-          label: function(context) {
-            const label = context.dataset.label || '';
-            const value = context.parsed.y;
+        external: function(context) {
+          // 툴팁 엘리먼트 가져오기
+          const tooltipEl = document.getElementById('chartjs-tooltip');
+          
+          // 첫 렌더링 시 툴팁 엘리먼트 생성
+          if (!tooltipEl) {
+            const div = document.createElement('div');
+            div.id = 'chartjs-tooltip';
+            div.style.position = 'absolute';
+            div.style.background = 'rgba(0, 0, 0, 0.9)';
+            div.style.borderRadius = '6px';
+            div.style.color = 'white';
+            div.style.padding = '12px';
+            div.style.pointerEvents = 'none';
+            div.style.fontSize = '12px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.transition = 'all 0.1s ease';
+            div.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+            document.body.appendChild(div);
+          }
+          
+          const tooltip = context.tooltip;
+          const tooltipDiv = document.getElementById('chartjs-tooltip')!;
+          
+          // 툴팁 숨기기
+          if (tooltip.opacity === 0) {
+            tooltipDiv.style.opacity = '0';
+            setHoveredIndex(null);
+            return;
+          }
+          
+          // 툴팁 내용 구성
+          if (tooltip.body) {
+            const titleLines = tooltip.title || [];
+            const bodyLines = tooltip.body.map((item: any) => item.lines);
             
-            if (value !== null) {
-              return `${label}: ${value.toLocaleString()} players`;
+            let innerHtml = '<div>';
+            
+            // 제목 추가
+            titleLines.forEach((title: string) => {
+              innerHtml += `<div style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px;">${title}</div>`;
+            });
+            
+            // 데이터 추가 (상위 5개만 표시)
+            const dataItems = tooltip.dataPoints || [];
+            const sortedItems = dataItems
+              .filter((item: any) => item.raw > 0)
+              .sort((a: any, b: any) => b.raw - a.raw)
+              .slice(0, 10); // 상위 10개만 표시
+            
+            sortedItems.forEach((item: any, index: number) => {
+              const color = item.dataset.borderColor;
+              const value = item.raw;
+              const label = item.dataset.label;
+              
+              // 천 단위 구분 및 K/M 단위로 축약
+              let formattedValue = value.toLocaleString();
+              if (value >= 1000000) {
+                formattedValue = (value / 1000000).toFixed(1) + 'M';
+              } else if (value >= 10000) {
+                formattedValue = (value / 1000).toFixed(0) + 'K';
+              }
+              
+              innerHtml += `
+                <div style="display: flex; align-items: center; margin: 4px 0;">
+                  <div style="width: 12px; height: 12px; background: ${color}; margin-right: 8px; border-radius: 2px;"></div>
+                  <div style="flex: 1;">${label}</div>
+                  <div style="font-weight: bold; margin-left: 12px;">${formattedValue}</div>
+                </div>
+              `;
+            });
+            
+            if (dataItems.length > 10) {
+              innerHtml += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2); font-style: italic; opacity: 0.7;">...and ${dataItems.length - 10} more</div>`;
             }
             
-            return label;
+            innerHtml += '</div>';
+            tooltipDiv.innerHTML = innerHtml;
           }
+          
+          // 위치 계산
+          const position = context.chart.canvas.getBoundingClientRect();
+          
+          // 툴팁 표시
+          tooltipDiv.style.opacity = '1';
+          
+          // 차트 우측에 툴팁 표시
+          const tooltipX = position.left + tooltip.caretX + 20;
+          const tooltipY = position.top + window.pageYOffset + tooltip.caretY - 50;
+          
+          // 화면 경계 체크
+          const tooltipWidth = tooltipDiv.offsetWidth;
+          const tooltipHeight = tooltipDiv.offsetHeight;
+          
+          // 우측 경계 체크
+          if (tooltipX + tooltipWidth > window.innerWidth) {
+            tooltipDiv.style.left = (position.left + tooltip.caretX - tooltipWidth - 20) + 'px';
+          } else {
+            tooltipDiv.style.left = tooltipX + 'px';
+          }
+          
+          // 하단 경계 체크
+          if (tooltipY + tooltipHeight > window.innerHeight + window.pageYOffset) {
+            tooltipDiv.style.top = (tooltipY - tooltipHeight) + 'px';
+          } else {
+            tooltipDiv.style.top = tooltipY + 'px';
+          }
+          
+          setHoveredIndex(tooltip.dataPoints?.[0]?.dataIndex ?? null);
         }
       },
       datalabels: {
-        display: function(context: any) {
-          // 상위 5개 사이트의 마지막 데이터 포인트만 표시
-          const datasetIndex = context.datasetIndex;
-          const dataIndex = context.dataIndex;
-          const isLastPoint = dataIndex === sortedDates.length - 1;
-          const isTopSite = datasetIndex < 5;
-          return isLastPoint && isTopSite;
-        },
-        align: 'end' as const,
-        anchor: 'end' as const,
-        offset: 10,
-        formatter: function(value: number) {
-          // 천 단위 구분 및 K/M 단위로 축약
-          if (value >= 1000000) {
-            return (value / 1000000).toFixed(1) + 'M';
-          } else if (value >= 1000) {
-            return (value / 1000).toFixed(0) + 'K';
-          }
-          return value.toString();
-        },
-        color: function(context: any) {
-          return context.dataset.borderColor;
-        },
-        font: {
-          weight: 'bold',
-          size: 11
-        },
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        borderColor: function(context: any) {
-          return context.dataset.borderColor;
-        },
-        borderRadius: 4,
-        borderWidth: 1,
-        padding: 4
+        display: false // 데이터 레이블 기본적으로 비활성화
       }
     },
     scales: {
@@ -242,8 +306,18 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
     }
   };
 
+  // 컴포넌트 언마운트 시 툴팁 정리
+  useEffect(() => {
+    return () => {
+      const tooltipEl = document.getElementById('chartjs-tooltip');
+      if (tooltipEl) {
+        tooltipEl.remove();
+      }
+    };
+  }, []);
+
   return (
-    <div style={{ height: '500px', marginBottom: '2rem' }}>
+    <div style={{ height: '500px', marginBottom: '2rem', position: 'relative' }}>
       <Line data={chartData} options={options} />
     </div>
   );
