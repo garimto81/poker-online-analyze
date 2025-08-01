@@ -276,9 +276,6 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
           
           setHoveredIndex(tooltip.dataPoints?.[0]?.dataIndex ?? null);
         }
-      },
-      datalabels: {
-        display: false // 데이터 레이블 기본적으로 비활성화
       }
     },
     scales: {
