@@ -69,44 +69,46 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
     '#B34D4D'
   ];
 
-  // Sort sites by current metric value and take top 10
-  const sortedSites = Object.entries(data)
-    .sort(([, a], [, b]) => b.current_stats[metric] - a.current_stats[metric])
-    .slice(0, 10);
+  // Sort all sites by current metric value
+  const allSortedSites = Object.entries(data)
+    .sort(([, a], [, b]) => b.current_stats[metric] - a.current_stats[metric]);
+  
+  // Take top 10 for individual display
+  const top10Sites = allSortedSites.slice(0, 10);
+  // Get the rest for 'etc' grouping
+  const etcSites = allSortedSites.slice(10);
 
-  // Get all unique dates
+  // Get all unique dates from all sites
   const allDates = new Set<string>();
-  sortedSites.forEach(([, siteData]) => {
+  Object.values(data).forEach(siteData => {
     siteData.daily_data.forEach(d => {
       allDates.add(new Date(d.date).toLocaleDateString());
     });
   });
   const sortedDates = Array.from(allDates).sort();
 
-  // Calculate total for each date to compute percentages
-  const totalsByDate: { [date: string]: number } = {};
+  // Calculate 'etc' values for each date
+  const etcValuesByDate: { [date: string]: number } = {};
   sortedDates.forEach(date => {
-    let total = 0;
-    sortedSites.forEach(([, siteData]) => {
+    let etcTotal = 0;
+    etcSites.forEach(([, siteData]) => {
       const dayData = siteData.daily_data.find(
         d => new Date(d.date).toLocaleDateString() === date
       );
       if (dayData) {
-        total += dayData[metric];
+        etcTotal += dayData[metric];
       }
     });
-    totalsByDate[date] = total;
+    etcValuesByDate[date] = etcTotal;
   });
 
-  // Prepare datasets with percentage values
-  const datasets = sortedSites.map(([siteName, siteData], index) => {
+  // Prepare datasets with actual values (not percentage)
+  const datasets = top10Sites.map(([siteName, siteData], index) => {
     const dataPoints = sortedDates.map(date => {
       const dayData = siteData.daily_data.find(
         d => new Date(d.date).toLocaleDateString() === date
       );
-      const value = dayData ? dayData[metric] : 0;
-      const total = totalsByDate[date] || 1;
-      return (value / total) * 100; // Convert to percentage
+      return dayData ? dayData[metric] : 0; // Use actual values instead of percentage
     });
 
     return {
@@ -118,6 +120,19 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
       tension: 0.3
     };
   });
+
+  // Add 'etc' dataset if there are sites beyond top 10
+  if (etcSites.length > 0) {
+    const etcDataPoints = sortedDates.map(date => etcValuesByDate[date] || 0);
+    datasets.push({
+      label: `Others (${etcSites.length} sites)`,
+      data: etcDataPoints,
+      borderColor: '#808080',
+      backgroundColor: '#808080',
+      fill: true,
+      tension: 0.3
+    });
+  }
 
   const chartData = {
     labels: sortedDates,
@@ -154,25 +169,10 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
             const value = context.parsed.y;
             
             if (value !== null) {
-              return `${label}: ${value.toFixed(2)}%`;
+              return `${label}: ${value.toLocaleString()} players`;
             }
             
             return label;
-          },
-          afterLabel: function(context) {
-            // 실제 플레이어 수도 표시
-            const date = sortedDates[context.dataIndex];
-            const siteName = context.dataset.label || '';
-            const siteData = data[siteName];
-            if (siteData) {
-              const dayData = siteData.daily_data.find(
-                d => new Date(d.date).toLocaleDateString() === date
-              );
-              if (dayData) {
-                return `(${dayData[metric].toLocaleString()} players)`;
-              }
-            }
-            return '';
           }
         }
       }
@@ -190,13 +190,12 @@ const MarketShareStackedChart: React.FC<MarketShareStackedChartProps> = ({ data,
         display: true,
         title: {
           display: true,
-          text: 'Market Share (%)'
+          text: metric === 'players_online' ? 'Players Online' : 'Cash Players'
         },
         min: 0,
-        max: 100,
         ticks: {
           callback: function(value) {
-            return value + '%';
+            return value.toLocaleString();
           }
         }
       }
