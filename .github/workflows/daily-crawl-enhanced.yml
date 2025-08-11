@@ -11,6 +11,12 @@ on:
         required: false
         default: 'false'
 
+# 필요한 권한만 부여
+permissions:
+  contents: read
+  actions: write      # 아티팩트 업로드
+  issues: write       # 실패시 이슈 생성
+
 jobs:
   crawl:
     runs-on: ubuntu-latest
@@ -18,20 +24,13 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
-    
-    - name: Cache pip packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+        python-version: '3.12'
+        cache: 'pip'
     
     - name: Install dependencies
       run: |
@@ -84,7 +83,7 @@ jobs:
     
     - name: Upload artifacts on failure
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: crawl-failure-reports
         path: |

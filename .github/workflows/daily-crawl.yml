@@ -6,18 +6,24 @@ on:
     - cron: '0 18 * * *'
   workflow_dispatch: # 수동 실행 가능
 
+# 최소 권한 원칙 적용
+permissions:
+  contents: read
+
 jobs:
   crawl:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # 타임아웃 설정
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        python-version: '3.12'
+        cache: 'pip'
     
     - name: Install dependencies
       run: |

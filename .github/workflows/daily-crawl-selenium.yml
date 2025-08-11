@@ -6,18 +6,25 @@ on:
     - cron: '0 18 * * *'
   workflow_dispatch: # 수동 실행 가능
 
+# 최소 권한 원칙 적용
+permissions:
+  contents: read
+  actions: write  # 아티팩트 업로드를 위한 권한
+
 jobs:
   crawl:
     runs-on: ubuntu-latest
+    timeout-minutes: 20  # Selenium 실행을 위한 더 긴 타임아웃
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        python-version: '3.12'
+        cache: 'pip'
     
     - name: Install Chrome dependencies
       run: |
@@ -65,7 +72,7 @@ jobs:
     
     - name: Upload error screenshots
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: error-screenshots
         path: backend/error_screenshot_*.png
