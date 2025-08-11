@@ -1,0 +1,30 @@
+{
+  "name": "poker-online-analyze",
+  "version": "1.0.0",
+  "description": "온라인 포커 사이트의 데이터를 수집하고 분석하여 트렌드 및 비교 분석 정보를 제공하는 웹 애플리케이션입니다.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:headed": "playwright test --headed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/garimto81/poker-online-analyze.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/garimto81/poker-online-analyze/issues"
+  },
+  "homepage": "https://github.com/garimto81/poker-online-analyze#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

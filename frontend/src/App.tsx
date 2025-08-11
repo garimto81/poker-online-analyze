@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import firebaseService from './services/firebaseService';
 import TrendChart from './components/TrendChart';
@@ -42,11 +42,17 @@ function App() {
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<'network' | 'ratelimit' | 'server' | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [allSitesData, setAllSitesData] = useState<AllSitesData | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'charts'>('table');
   const [sortField, setSortField] = useState<SortField>('rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [fallbackData, setFallbackData] = useState<Site[] | null>(null);
+  const [isDataFresh, setIsDataFresh] = useState(false); // 데이터 신선도 상태
+  const [lastFetchAttempt, setLastFetchAttempt] = useState<number>(0); // 마지막 fetch 시도 시간
 
   // API URL 환경 변수 설정 with fallbacks
   const API_BASE_URL = process.env.REACT_APP_API_URL || 
@@ -56,21 +62,182 @@ function App() {
 
   console.log('API_BASE_URL:', API_BASE_URL); // 디버깅용
 
+  // 디바운스를 위한 타이머 참조
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
+    // 앱 시작 시 로컬 저장소에서 캐시된 데이터 로드
+    loadCachedData();
     fetchCurrentRanking();
     fetchAllSitesStats();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const fetchCurrentRanking = async () => {
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // 로컬 저장소에서 캐시된 데이터 로드
+  const loadCachedData = () => {
     try {
+      const cachedSites = localStorage.getItem('poker-sites-cache');
+      const cachedStats = localStorage.getItem('poker-stats-cache');
+      const cacheTimestamp = localStorage.getItem('poker-cache-timestamp');
+      
+      if (cachedSites && cachedStats && cacheTimestamp) {
+        const timestamp = parseInt(cacheTimestamp);
+        const isExpired = Date.now() - timestamp > 15 * 60 * 1000; // 15분 캐시
+        
+        if (!isExpired) {
+          const sites = JSON.parse(cachedSites);
+          const stats = JSON.parse(cachedStats);
+          
+          setFallbackData(sites);
+          setSites(sites);
+          setAllSitesData(stats);
+          
+          if (sites.length > 0 && sites[0].last_updated) {
+            setLastUpdate(`${new Date(sites[0].last_updated).toLocaleString()} (캐시됨)`);
+          }
+          
+          console.log('Loaded cached data successfully');
+        } else {
+          // 캐시 만료 시 정리
+          localStorage.removeItem('poker-sites-cache');
+          localStorage.removeItem('poker-stats-cache');
+          localStorage.removeItem('poker-cache-timestamp');
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load cached data:', error);
+    }
+  };
+
+  // 데이터를 로컬 저장소에 캐시
+  const cacheData = (sites: Site[], stats: AllSitesData | null) => {
+    try {
+      localStorage.setItem('poker-sites-cache', JSON.stringify(sites));
+      if (stats) {
+        localStorage.setItem('poker-stats-cache', JSON.stringify(stats));
+      }
+      localStorage.setItem('poker-cache-timestamp', Date.now().toString());
+    } catch (error) {
+      console.warn('Failed to cache data:', error);
+    }
+  };
+
+  // 에러 타입 판별
+  const getErrorType = (error: any): 'network' | 'ratelimit' | 'server' => {
+    const errorMessage = error?.message || error?.toString() || '';
+    
+    if (errorMessage.includes('429') || errorMessage.includes('Rate limit') || errorMessage.includes('quota')) {
+      return 'ratelimit';
+    } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+      return 'network';
+    } else {
+      return 'server';
+    }
+  };
+
+  // 자동 재시도 로직
+  const retryWithDelay = async (retryFunction: () => Promise<void>, currentRetryCount: number) => {
+    const maxRetries = 3;
+    const baseDelay = 2000; // 2초
+    
+    if (currentRetryCount < maxRetries) {
+      const delay = baseDelay * Math.pow(2, currentRetryCount); // 지수 백오프
+      
+      setIsRetrying(true);
+      setRetryCount(currentRetryCount + 1);
+      
+      console.log(`Retrying in ${delay}ms... (${currentRetryCount + 1}/${maxRetries})`);
+      
+      setTimeout(async () => {
+        try {
+          await retryFunction();
+          setIsRetrying(false);
+          setRetryCount(0);
+          setError(null);
+          setErrorType(null);
+        } catch (err) {
+          const newErrorType = getErrorType(err);
+          if (newErrorType === 'ratelimit') {
+            await retryWithDelay(retryFunction, currentRetryCount + 1);
+          } else {
+            setIsRetrying(false);
+            setError(err instanceof Error ? err.message : 'Unknown error');
+            setErrorType(newErrorType);
+          }
+        }
+      }, delay);
+    } else {
+      setIsRetrying(false);
+      setError('최대 재시도 횟수에 도달했습니다. 잠시 후 다시 시도해 주세요.');
+      setErrorType('ratelimit');
+      
+      // 재시도 실패 시 캐시된 데이터 사용
+      if (fallbackData && fallbackData.length > 0) {
+        setSites(fallbackData);
+        setLastUpdate(`${new Date().toLocaleString()} (캐시된 데이터 사용)`);
+      }
+    }
+  };
+
+  // 디바운스된 fetch 함수 (중복 호출 방지)
+  const debouncedFetch = (fetchFunction: () => Promise<void>, delay: number = 1000) => {
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
+    }
+
+    fetchTimeoutRef.current = setTimeout(() => {
+      const now = Date.now();
+      // 최소 간격 확인 (5초)
+      if (now - lastFetchAttempt < 5000) {
+        console.log('Too frequent fetch attempts, skipping...');
+        return;
+      }
+      
+      setLastFetchAttempt(now);
+      fetchFunction();
+    }, delay);
+  };
+
+  // 데이터 신선도 확인
+  const isDataStale = (): boolean => {
+    const now = Date.now();
+    const cacheTimestamp = localStorage.getItem('poker-cache-timestamp');
+    
+    if (!cacheTimestamp) return true;
+    
+    const age = now - parseInt(cacheTimestamp);
+    return age > 10 * 60 * 1000; // 10분 이상 오래된 데이터는 stale
+  };
+
+  const fetchCurrentRanking = async (force: boolean = false) => {
+    // 강제 갱신이 아니고 데이터가 신선하면 스킵
+    if (!force && !isDataStale() && sites.length > 0) {
+      console.log('Data is fresh, skipping fetch');
+      setIsDataFresh(true);
+      return;
+    }
+
+    const fetchLogic = async () => {
       setLoading(true);
       setError(null);
+      setErrorType(null);
+      setIsDataFresh(false);
       
       let sitesData: Site[] = [];
       
       // 먼저 API 서버 시도
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`);
+        const response = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`, {
+          timeout: 10000 // 10초 타임아웃
+        });
         sitesData = response.data;
         if (response.data.length > 0 && response.data[0].last_updated) {
           setLastUpdate(new Date(response.data[0].last_updated).toLocaleString());
@@ -99,12 +266,39 @@ function App() {
       }));
       
       setSites(sitesWithShare);
+      setFallbackData(sitesWithShare); // 새로운 데이터를 fallback으로 저장
+      setIsDataFresh(true); // 데이터가 신선함을 표시
+      
+      // 데이터 캐싱
+      cacheData(sitesWithShare, allSitesData);
+      
       setLoading(false);
+      console.log('Data fetch completed successfully');
+    };
+
+    try {
+      await fetchLogic();
     } catch (err) {
       console.error('All data fetch attempts failed:', err);
+      const errorType = getErrorType(err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to fetch data. Tried API (${API_BASE_URL}) and Firebase direct. Error: ${errorMessage}`);
+      
+      setErrorType(errorType);
       setLoading(false);
+      
+      if (errorType === 'ratelimit') {
+        // 429 에러 시 자동 재시도
+        await retryWithDelay(fetchLogic, 0);
+      } else {
+        // 다른 에러의 경우 캐시된 데이터 사용 시도
+        if (fallbackData && fallbackData.length > 0) {
+          setSites(fallbackData);
+          setLastUpdate(`${new Date().toLocaleString()} (캐시된 데이터 사용)`);
+          setError('실시간 데이터를 가져올 수 없어 캐시된 데이터를 표시합니다.');
+        } else {
+          setError(`데이터를 가져올 수 없습니다. ${errorMessage}`);
+        }
+      }
     }
   };
 
@@ -112,8 +306,14 @@ function App() {
     try {
       // 먼저 API 서버 시도
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/firebase/all_sites_daily_stats/`);
+        const response = await axios.get(`${API_BASE_URL}/api/firebase/all_sites_daily_stats/`, {
+          timeout: 15000 // 15초 타임아웃 (차트 데이터는 더 오래 걸릴 수 있음)
+        });
         setAllSitesData(response.data);
+        
+        // 차트 데이터도 캐싱
+        cacheData(sites, response.data);
+        
         console.log('All sites stats loaded from API server');
         return;
       } catch (apiError) {
@@ -122,11 +322,28 @@ function App() {
         // API 실패시 Firebase 직접 연결로 통계 데이터 구성
         const firebaseData = await firebaseService.getAllSitesDailyStats(7);
         setAllSitesData(firebaseData);
+        
+        // 차트 데이터도 캐싱
+        cacheData(sites, firebaseData);
+        
         console.log('All sites stats loaded from Firebase directly');
         return;
       }
     } catch (err) {
       console.error('All attempts to fetch stats failed:', err);
+      
+      // 통계 데이터 실패 시 캐시된 데이터 사용 시도
+      try {
+        const cachedStats = localStorage.getItem('poker-stats-cache');
+        if (cachedStats) {
+          const parsedStats = JSON.parse(cachedStats);
+          setAllSitesData(parsedStats);
+          console.log('Using cached stats data');
+        }
+      } catch (cacheError) {
+        console.warn('Failed to load cached stats:', cacheError);
+      }
+      
       // 통계 데이터 실패는 차트만 영향받으므로 앱을 중단하지 않음
     }
   };
@@ -187,10 +404,74 @@ function App() {
     return sortDirection === 'asc' ? '▲' : '▼';
   };
 
-  if (loading) {
+  // 사용자 친화적 에러 메시지
+  const getErrorMessage = () => {
+    if (!error) return null;
+    
+    if (isRetrying) {
+      return (
+        <div className="error-message retrying">
+          🔄 API 요청 한도 초과로 인해 재시도 중입니다... ({retryCount}/3)
+          <br />
+          <small>잠시만 기다려 주세요. 자동으로 데이터를 다시 가져옵니다.</small>
+        </div>
+      );
+    }
+    
+    switch (errorType) {
+      case 'ratelimit':
+        return (
+          <div className="error-message rate-limit">
+            ⚠️ Firebase API 요청 한도가 초과되었습니다
+            <br />
+            <small>
+              잠시 후 자동으로 재시도됩니다. 또는 새로고침 버튼을 눌러 캐시된 데이터를 확인하세요.
+            </small>
+            <button 
+              onClick={() => {
+                firebaseService.clearCache();
+                window.location.reload();
+              }}
+              className="btn btn-small"
+              style={{ marginLeft: '10px' }}
+            >
+              새로고침
+            </button>
+          </div>
+        );
+      case 'network':
+        return (
+          <div className="error-message network">
+            🌐 네트워크 연결에 문제가 있습니다
+            <br />
+            <small>{error}</small>
+          </div>
+        );
+      default:
+        return (
+          <div className="error-message server">
+            🔧 서버에 일시적인 문제가 발생했습니다
+            <br />
+            <small>{error}</small>
+          </div>
+        );
+    }
+  };
+
+  if (loading && sites.length === 0) {
     return (
       <div className="App">
-        <div className="loading">Loading...</div>
+        <header className="App-header">
+          <h1>🎰 Online Poker Traffic Analysis</h1>
+          <p className="subtitle">Real-time poker site traffic data from PokerScout</p>
+        </header>
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <p>데이터를 불러오는 중...</p>
+          {retryCount > 0 && (
+            <small>재시도 중... ({retryCount}/3)</small>
+          )}
+        </div>
       </div>
     );
   }
@@ -204,22 +485,30 @@ function App() {
       
       <main className="App-main">
         <div className="controls">
-          <button onClick={fetchCurrentRanking} className="btn btn-refresh">
+          <button 
+            onClick={() => debouncedFetch(() => fetchCurrentRanking(true), 500)}
+            className="btn btn-refresh"
+            disabled={loading || isRetrying}
+          >
             🔄 Refresh Data
+            {isDataFresh && <span className="cache-indicator">최신</span>}
           </button>
-          <button onClick={triggerCrawl} className="btn btn-crawl">
+          <button 
+            onClick={triggerCrawl}
+            className="btn btn-crawl"
+            disabled={loading || isRetrying}
+          >
             🕷️ Trigger New Crawl
           </button>
           {lastUpdate && (
-            <span className="last-update">Last updated: {lastUpdate}</span>
+            <span className="last-update">
+              Last updated: {lastUpdate}
+              {isDataFresh && <span className="cache-indicator">신선함</span>}
+            </span>
           )}
         </div>
 
-        {error && (
-          <div className="error-message">
-            ⚠️ {error}
-          </div>
-        )}
+        {getErrorMessage()}
 
         <div className="tabs">
           <button 
