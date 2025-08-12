@@ -930,6 +930,41 @@ def upload_to_firestore_rest(data, access_token=None):
         logger.error(f"Firestore 업로드 중 오류: {e}")
         return False
 
+def save_data_to_public_json(data):
+    """GitHub Pages에서 직접 접근 가능한 JSON 파일로 저장"""
+    try:
+        # public 폴더에 데이터 저장 (상대 경로 수정)
+        import os
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        data_dir = os.path.join(base_dir, "frontend", "public", "data")
+        os.makedirs(data_dir, exist_ok=True)
+        
+        # 데이터 구조 생성
+        json_data = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "sites": data,
+            "summary": {
+                "totalSites": len(data),
+                "totalCashPlayers": sum(s.get('cash_players', 0) for s in data),
+                "totalOnlinePlayers": sum(s.get('players_online', 0) for s in data),
+                "ggNetworkSites": len([s for s in data if s.get('category') == 'GG_POKER']),
+                "ggNetworkPlayers": sum(s.get('cash_players', 0) for s in data if s.get('category') == 'GG_POKER')
+            }
+        }
+        
+        # JSON 파일로 저장
+        file_path = os.path.join(data_dir, "latest.json")
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
+        
+        logger.info(f"✅ JSON 파일 저장 성공: {file_path}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"JSON 파일 저장 실패: {e}")
+        return False
+
 def run_enhanced_crawl():
     """향상된 크롤링 실행 메인 함수"""
     logger.info("="*80)
@@ -958,11 +993,14 @@ def run_enhanced_crawl():
                     f"{site['players_online']:,}명 온라인"
                 )
             
-            # Firebase 업로드 (두 가지 방식 모두 시도)
-            # 1. Realtime Database 업로드 (GitHub Pages용)
+            # 데이터 저장 (여러 방식 시도)
+            # 1. JSON 파일로 저장 (GitHub Pages용)
+            json_success = save_data_to_public_json(crawled_data)
+            
+            # 2. Realtime Database 업로드 (백업용)
             realtime_success = upload_to_realtime_database(crawled_data)
             
-            # 2. Firestore 업로드 (기존 방식)
+            # 3. Firestore 업로드 (기존 방식)
             access_token = get_access_token()
             upload_success = upload_to_firestore_rest(crawled_data, access_token)
             

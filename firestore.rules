@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 모든 문서에 대해 읽기 권한 허용 (공개 읽기)
+    match /{document=**} {
+      allow read: if true;
+      allow write: if false;  // 쓰기는 서버에서만
+    }
+    
+    // sites 컬렉션과 하위 컬렉션에 대한 읽기 권한
+    match /sites/{site} {
+      allow read: if true;
+      
+      // traffic_logs 하위 컬렉션도 읽기 허용
+      match /traffic_logs/{log} {
+        allow read: if true;
+      }
+    }
+  }
+}
