@@ -44,6 +44,7 @@ jobs:
     - name: Build for GitHub Pages
       env:
         REACT_APP_API_URL: https://poker-analyzer-api.vercel.app
+        REACT_APP_FIREBASE_PROJECT_ID: poker-online-analyze-default-rtdb
         PUBLIC_URL: /poker-online-analyze
         CI: false
       run: |

@@ -23,8 +23,11 @@ class FirebaseRestClient {
   
   constructor() {
     // Firebase REST API URL (프로젝트 ID는 환경 변수에서 가져오거나 하드코딩)
-    const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID || 'poker-online-analyze';
+    // 여러 가능한 프로젝트 ID를 시도
+    const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID || 'poker-online-analyze-default-rtdb' || 'poker-online-analyze';
     this.baseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
+    console.log('Firebase project ID:', projectId);
+    console.log('Firebase base URL:', this.baseUrl);
   }
 
   // 캐시 확인 및 반환
@@ -127,91 +130,113 @@ class FirebaseRestClient {
       return cachedData;
     }
 
-    try {
-      console.log('Fetching current ranking from Firebase REST API...');
-      
-      // sites 컬렉션의 모든 문서 가져오기 (재시도 로직 포함)
-      const response = await this.fetchWithRetry(`${this.baseUrl}/sites`);
-      const data = await response.json();
-      
-      if (!data.documents) {
-        const emptyResult: any[] = [];
-        this.setCache(cacheKey, emptyResult);
-        return emptyResult;
-      }
+    // 여러 프로젝트 ID로 시도
+    const projectIds = [
+      process.env.REACT_APP_FIREBASE_PROJECT_ID,
+      'poker-online-analyze-default-rtdb',
+      'poker-online-analyze',
+      'poker-analyzer-api'
+    ].filter(Boolean);
 
-      // 배치 처리: 모든 사이트의 traffic_logs를 병렬로 가져오되, 큐를 통해 제한
-      const sites = await Promise.all(
-        data.documents.map(async (doc: any) => {
-          const siteName = doc.name.split('/').pop();
-          
-          // 큐를 통해 traffic_logs 가져오기 (API 호출 제한)
-          const latestTraffic = await this.queueRequest(async () => {
-            const trafficCacheKey = `traffic_logs_${siteName}`;
-            const cachedTraffic = this.getFromCache(trafficCacheKey);
+    for (const projectId of projectIds) {
+      try {
+        const testUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/sites`;
+        console.log(`Trying Firebase project ID: ${projectId}`);
+        console.log(`Test URL: ${testUrl}`);
+        
+        // sites 컬렉션의 모든 문서 가져오기 (재시도 로직 포함)
+        const response = await this.fetchWithRetry(testUrl);
+        const data = await response.json();
+        
+        if (!data.documents) {
+          console.log(`No documents found for project ID: ${projectId}`);
+          continue; // 다음 프로젝트 ID 시도
+        }
+
+        // 성공한 경우 baseUrl 업데이트
+        this.baseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
+        console.log(`Successfully connected with project ID: ${projectId}`);
+        console.log(`Updated base URL: ${this.baseUrl}`);
+
+        // 배치 처리: 모든 사이트의 traffic_logs를 병렬로 가져오되, 큐를 통해 제한
+        const sites = await Promise.all(
+          data.documents.map(async (doc: any) => {
+            const siteName = doc.name.split('/').pop();
             
-            if (cachedTraffic) {
-              return cachedTraffic;
-            }
-
-            try {
-              const trafficResponse = await this.fetchWithRetry(
-                `${this.baseUrl}/sites/${encodeURIComponent(siteName)}/traffic_logs`
-              );
+            // 큐를 통해 traffic_logs 가져오기 (API 호출 제한)
+            const latestTraffic = await this.queueRequest(async () => {
+              const trafficCacheKey = `traffic_logs_${siteName}`;
+              const cachedTraffic = this.getFromCache(trafficCacheKey);
               
-              const trafficData = await trafficResponse.json();
-              
-              if (trafficData.documents && trafficData.documents.length > 0) {
-                // 최신 데이터 찾기 (collected_at 기준으로 정렬)
-                const sortedLogs = trafficData.documents.sort((a: any, b: any) => {
-                  const dateA = new Date(a.fields?.collected_at?.timestampValue || 0);
-                  const dateB = new Date(b.fields?.collected_at?.timestampValue || 0);
-                  return dateB.getTime() - dateA.getTime();
-                });
-                
-                const latestFields = sortedLogs[0].fields;
-                // traffic 데이터를 캐시에 저장 (더 긴 캐시 시간)
-                this.setCache(trafficCacheKey, latestFields);
-                return latestFields;
+              if (cachedTraffic) {
+                return cachedTraffic;
               }
-              return null;
-            } catch (trafficError) {
-              console.warn(`Failed to fetch traffic logs for ${siteName}:`, trafficError);
-              return null;
-            }
-          });
-          
-          return {
-            site_name: siteName,
-            category: doc.fields?.category?.stringValue || 'UNKNOWN',
-            players_online: parseInt(latestTraffic?.players_online?.integerValue || '0'),
-            cash_players: parseInt(latestTraffic?.cash_players?.integerValue || '0'),
-            peak_24h: parseInt(latestTraffic?.peak_24h?.integerValue || '0'),
-            seven_day_avg: parseInt(latestTraffic?.seven_day_avg?.integerValue || '0'),
-            last_updated: latestTraffic?.collected_at?.timestampValue || null
-          };
-        })
-      );
 
-      // players_online으로 정렬하고 순위 추가
-      const sortedSites = sites
-        .sort((a, b) => b.players_online - a.players_online)
-        .map((site, index) => ({
-          ...site,
-          rank: index + 1
-        }));
+              try {
+                const trafficResponse = await this.fetchWithRetry(
+                  `${this.baseUrl}/sites/${encodeURIComponent(siteName)}/traffic_logs`
+                );
+                
+                const trafficData = await trafficResponse.json();
+                
+                if (trafficData.documents && trafficData.documents.length > 0) {
+                  // 최신 데이터 찾기 (collected_at 기준으로 정렬)
+                  const sortedLogs = trafficData.documents.sort((a: any, b: any) => {
+                    const dateA = new Date(a.fields?.collected_at?.timestampValue || 0);
+                    const dateB = new Date(b.fields?.collected_at?.timestampValue || 0);
+                    return dateB.getTime() - dateA.getTime();
+                  });
+                  
+                  const latestFields = sortedLogs[0].fields;
+                  // traffic 데이터를 캐시에 저장 (더 긴 캐시 시간)
+                  this.setCache(trafficCacheKey, latestFields);
+                  return latestFields;
+                }
+                return null;
+              } catch (trafficError) {
+                console.warn(`Failed to fetch traffic logs for ${siteName}:`, trafficError);
+                return null;
+              }
+            });
+            
+            return {
+              site_name: siteName,
+              category: doc.fields?.category?.stringValue || 'UNKNOWN',
+              players_online: parseInt(latestTraffic?.players_online?.integerValue || '0'),
+              cash_players: parseInt(latestTraffic?.cash_players?.integerValue || '0'),
+              peak_24h: parseInt(latestTraffic?.peak_24h?.integerValue || '0'),
+              seven_day_avg: parseInt(latestTraffic?.seven_day_avg?.integerValue || '0'),
+              last_updated: latestTraffic?.collected_at?.timestampValue || null
+            };
+          })
+        );
 
-      console.log(`Fetched ${sortedSites.length} sites from Firebase`);
-      
-      // 결과를 캐시에 저장
-      this.setCache(cacheKey, sortedSites);
-      
-      return sortedSites;
-      
-    } catch (error) {
-      console.error('Error fetching current ranking:', error);
-      throw error;
+        // players_online으로 정렬하고 순위 추가
+        const sortedSites = sites
+          .sort((a, b) => b.players_online - a.players_online)
+          .map((site, index) => ({
+            ...site,
+            rank: index + 1
+          }));
+
+        console.log(`Fetched ${sortedSites.length} sites from Firebase`);
+        
+        // 결과를 캐시에 저장
+        this.setCache(cacheKey, sortedSites);
+        
+        return sortedSites;
+
+      } catch (error) {
+        console.warn(`Failed to connect with project ID ${projectId}:`, error);
+        continue; // 다음 프로젝트 ID 시도
+      }
     }
+
+    // 모든 프로젝트 ID 시도 실패
+    console.error('All Firebase project IDs failed');
+    const emptyResult: any[] = [];
+    this.setCache(cacheKey, emptyResult);
+    return emptyResult;
   }
 
   async getAllSitesDailyStats(days: number = 7): Promise<any> {

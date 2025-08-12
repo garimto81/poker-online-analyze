@@ -60,7 +60,12 @@ function App() {
       ? 'https://poker-analyzer-api.vercel.app' 
       : 'http://localhost:4001');
 
-  console.log('API_BASE_URL:', API_BASE_URL); // 디버깅용
+  console.log('Environment variables:');
+  console.log('- NODE_ENV:', process.env.NODE_ENV);
+  console.log('- API_BASE_URL:', API_BASE_URL);
+  console.log('- REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+  console.log('- REACT_APP_FIREBASE_PROJECT_ID:', process.env.REACT_APP_FIREBASE_PROJECT_ID);
+  console.log('- PUBLIC_URL:', process.env.PUBLIC_URL);
 
   // 디바운스를 위한 타이머 참조
   const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -235,6 +240,7 @@ function App() {
       
       // 먼저 API 서버 시도
       try {
+        console.log(`Trying API server: ${API_BASE_URL}/api/firebase/current_ranking/`);
         const response = await axios.get(`${API_BASE_URL}/api/firebase/current_ranking/`, {
           timeout: 10000 // 10초 타임아웃
         });
@@ -242,17 +248,52 @@ function App() {
         if (response.data.length > 0 && response.data[0].last_updated) {
           setLastUpdate(new Date(response.data[0].last_updated).toLocaleString());
         }
-        console.log('Data loaded from API server successfully');
+        console.log('Data loaded from API server successfully:', sitesData.length, 'sites');
       } catch (apiError) {
         console.log('API server failed, trying Firebase direct connection...', apiError);
         
         // API 실패시 Firebase 직접 연결 시도
-        const firebaseData = await firebaseService.getCurrentRanking();
-        sitesData = firebaseData;
-        if (firebaseData.length > 0 && firebaseData[0].last_updated) {
-          setLastUpdate(new Date(firebaseData[0].last_updated).toLocaleString());
+        try {
+          const firebaseData = await firebaseService.getCurrentRanking();
+          sitesData = firebaseData;
+          if (firebaseData.length > 0 && firebaseData[0].last_updated) {
+            setLastUpdate(new Date(firebaseData[0].last_updated).toLocaleString());
+          }
+          console.log('Data loaded from Firebase directly:', sitesData.length, 'sites');
+        } catch (firebaseError) {
+          console.error('Firebase direct connection also failed:', firebaseError);
+          
+          // 마지막 방법: 로컬 캐시 또는 fallback 데이터 사용
+          if (fallbackData && fallbackData.length > 0) {
+            sitesData = fallbackData;
+            setLastUpdate(`${new Date().toLocaleString()} (캐시된 데이터 사용)`);
+            console.log('Using cached fallback data:', sitesData.length, 'sites');
+          } else {
+            // 모든 방법이 실패한 경우 데모 데이터 제공
+            sitesData = [
+              {
+                site_name: 'PokerStars',
+                category: 'STANDALONE',
+                players_online: 8500,
+                cash_players: 3200,
+                peak_24h: 12000,
+                seven_day_avg: 9800,
+                rank: 1
+              },
+              {
+                site_name: 'GGPoker',
+                category: 'GG_POKER',
+                players_online: 7200,
+                cash_players: 2800,
+                peak_24h: 10500,
+                seven_day_avg: 8100,
+                rank: 2
+              }
+            ];
+            setLastUpdate(`${new Date().toLocaleString()} (데모 데이터)`);
+            console.log('Using demo data as fallback');
+          }
         }
-        console.log('Data loaded from Firebase directly');
       }
       
       // 점유율 계산
