@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug File Structure</title>
+</head>
+<body>
+    <h1>Debug: Check File Structure</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function checkFiles() {
+            const results = document.getElementById('results');
+            const filesToCheck = [
+                './static/js/main.6f708f71.js',
+                './static/css/main.460e1a87.css',
+                './data/latest.json',
+                './asset-manifest.json'
+            ];
+            
+            for (let file of filesToCheck) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        results.innerHTML += '<p style="color: green;">✓ ' + file + ' - OK</p>';
+                    } else {
+                        results.innerHTML += '<p style="color: red;">✗ ' + file + ' - ' + response.status + '</p>';
+                    }
+                } catch (error) {
+                    results.innerHTML += '<p style="color: red;">✗ ' + file + ' - Error: ' + error.message + '</p>';
+                }
+            }
+        }
+        
+        checkFiles();
+    </script>
+</body>
+</html>
