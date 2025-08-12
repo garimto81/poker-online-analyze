@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import firebaseService from './services/firebaseService';
 import TrendChart from './components/TrendChart';
@@ -72,9 +72,15 @@ function App() {
 
   useEffect(() => {
     // 앱 시작 시 로컬 저장소에서 캐시된 데이터 로드
-    loadCachedData();
-    fetchCurrentRanking();
-    fetchAllSitesStats();
+    const initializeData = async () => {
+      const hasCachedData = loadCachedData();
+      if (!hasCachedData) {
+        // 캐시된 데이터가 없을 때만 새로 fetch
+        await fetchCurrentRanking();
+      }
+      await fetchAllSitesStats();
+    };
+    initializeData();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 컴포넌트 언마운트 시 타이머 정리
@@ -87,7 +93,7 @@ function App() {
   }, []);
 
   // 로컬 저장소에서 캐시된 데이터 로드
-  const loadCachedData = () => {
+  const loadCachedData = (): boolean => {
     try {
       const cachedSites = localStorage.getItem('poker-sites-cache');
       const cachedStats = localStorage.getItem('poker-stats-cache');
@@ -110,15 +116,19 @@ function App() {
           }
           
           console.log('Loaded cached data successfully');
+          return true; // 캐시 데이터 로드 성공
         } else {
           // 캐시 만료 시 정리
           localStorage.removeItem('poker-sites-cache');
           localStorage.removeItem('poker-stats-cache');
           localStorage.removeItem('poker-cache-timestamp');
+          return false;
         }
       }
+      return false;
     } catch (error) {
       console.warn('Failed to load cached data:', error);
+      return false;
     }
   };
 
@@ -408,20 +418,23 @@ function App() {
     return category === 'GG_POKER' ? '#28a745' : '#6c757d';
   };
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      // 같은 필드를 클릭하면 정렬 방향 토글
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      // 다른 필드를 클릭하면 해당 필드로 변경하고 내림차순으로 시작
-      setSortField(field);
-      // 숫자 필드는 내림차순, 문자열 필드는 오름차순으로 기본 설정
-      const numericFields: SortField[] = ['rank', 'players_online', 'cash_players', 'peak_24h', 'seven_day_avg', 'players_share', 'cash_share'];
-      setSortDirection(numericFields.includes(field) ? 'desc' : 'asc');
-    }
-  };
+  const handleSort = useCallback((field: SortField) => {
+    setSortField(prevField => {
+      if (prevField === field) {
+        // 같은 필드를 클릭하면 정렬 방향만 토글
+        setSortDirection(prevDirection => prevDirection === 'asc' ? 'desc' : 'asc');
+        return prevField;
+      } else {
+        // 다른 필드를 클릭하면 해당 필드로 변경하고 적절한 기본 방향 설정
+        const numericFields: SortField[] = ['rank', 'players_online', 'cash_players', 'peak_24h', 'seven_day_avg', 'players_share', 'cash_share'];
+        setSortDirection(numericFields.includes(field) ? 'desc' : 'asc');
+        return field;
+      }
+    });
+  }, []);
 
-  const sortedSites = [...sites].sort((a, b) => {
+  const sortedSites = React.useMemo(() => {
+    return [...sites].sort((a, b) => {
     let aValue: any = a[sortField];
     let bValue: any = b[sortField];
 
@@ -439,15 +452,16 @@ function App() {
     if (aValue > bValue) {
       return sortDirection === 'asc' ? 1 : -1;
     }
-    return 0;
-  });
+      return 0;
+    });
+  }, [sites, sortField, sortDirection]);
 
-  const getSortIcon = (field: SortField) => {
+  const getSortIcon = useCallback((field: SortField) => {
     if (sortField !== field) {
       return ' ↕'; // 정렬 가능 표시
     }
     return sortDirection === 'asc' ? ' ↑' : ' ↓';
-  };
+  }, [sortField, sortDirection]);
 
   // 사용자 친화적 에러 메시지
   const getErrorMessage = () => {
