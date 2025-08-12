@@ -49,6 +49,11 @@ jobs:
       run: |
         cd frontend
         npm run build
+    
+    - name: Copy additional files
+      run: |
+        cp .nojekyll frontend/build/
+        cp debug.html frontend/build/
       
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
