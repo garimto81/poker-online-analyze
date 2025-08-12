@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/poker-online-analyze/static/css/main.460e1a87.css",
-    "main.js": "/poker-online-analyze/static/js/main.0a3ed4ee.js",
-    "index.html": "/poker-online-analyze/index.html",
-    "main.460e1a87.css.map": "/poker-online-analyze/static/css/main.460e1a87.css.map",
-    "main.0a3ed4ee.js.map": "/poker-online-analyze/static/js/main.0a3ed4ee.js.map"
+    "main.css": "./static/css/main.460e1a87.css",
+    "main.js": "./static/js/main.84e07e0d.js",
+    "index.html": "./index.html",
+    "main.460e1a87.css.map": "./static/css/main.460e1a87.css.map",
+    "main.84e07e0d.js.map": "./static/js/main.84e07e0d.js.map"
   },
   "entrypoints": [
     "static/css/main.460e1a87.css",
-    "static/js/main.0a3ed4ee.js"
+    "static/js/main.84e07e0d.js"
   ]
 }
