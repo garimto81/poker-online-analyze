@@ -6,55 +6,75 @@
 
 이 프로젝트는 PokerScout.com에서 온라인 포커 사이트의 데이터를 매일 자동으로 수집하고, 이를 시각화하여 사용자에게 트렌드 및 비교 분석 정보를 제공하는 것을 목표로 합니다.
 
-## 📊 현재 배포 상태 (최종 업데이트: 2025-01-31 00:30 KST)
+## 📊 현재 배포 상태 (최종 업데이트: 2025-08-12)
 
 ### ✅ 정상 작동 중인 시스템
-- **Firebase 데이터베이스**: 59개 포커 사이트 데이터 저장 완료
-- **Daily 크롤링**: GitHub Actions 자동 크롤링 시스템 구축 완료 (매일 3AM KST)
-- **Firebase 직접 연결**: 클라이언트에서 Firebase REST API 직접 접근 구현
+- **정적 JSON 데이터**: Firebase 대신 GitHub Pages의 정적 JSON 파일 사용 (API 제한 우회)
+- **실시간 데이터**: 42개 포커 사이트의 실제 PokerScout 데이터 표시
 - **웹사이트 배포**: GitHub Pages에 React 앱 성공적으로 배포
-- **차트 데이터**: 실제 Firebase traffic_logs 데이터 표시 (가짜 7일 분산 이슈 해결)
-- **점유율 표시**: 각 사이트의 시장 점유율 계산 및 표시 기능 추가
-- **누적 차트**: 시장 점유율 분포를 한눈에 보는 Stacked Area Chart 구현
+- **차트 기능**: 모든 차트가 정상 작동 (트렌드, 시장 점유율 등)
+- **점유율 표시**: 각 사이트의 시장 점유율 계산 및 표시 기능
+- **누적 차트**: 시장 점유율 분포를 한눈에 보는 Stacked Area Chart
+- **테이블 정렬**: 온라인 플레이어 기준 내림차순 기본 정렬, 모든 컬럼 정렬 가능
 
-### 📈 현재 실데이터 현황
-- **수집된 데이터**: 7/29, 7/30 (2일간 실제 데이터)
-- **차트 표시**: 실제 수집된 데이터만 표시 (더이상 가짜 7일 분산 없음)
-- **동일날 중복실행**: 각 실행마다 별도 타임스탬프로 문서 생성 (덮어쓰기 없음)
+### 📈 최근 업데이트 사항 (2025-08-12)
+- **Firebase 429 에러 해결**: 정적 JSON 파일로 전환하여 API 제한 문제 완전 해결
+- **차트 렌더링 수정**: `current_stats` 필드 추가로 차트 표시 오류 해결
+- **테이블 정렬 개선**: 
+  - 기본 정렬을 온라인 플레이어 내림차순으로 변경
+  - 헤더 클릭 시 정렬 방향 토글 기능 구현
+  - 정렬 아이콘 및 시각적 피드백 개선
+- **성능 최적화**: useCallback, useMemo 적용으로 불필요한 리렌더링 방지
 
 ### 🚀 완전 해결된 이슈들
-- ~~GitHub Pages 배포 실패~~ → ✅ 성공적으로 배포 완료
-- ~~차트 데이터 가짜 7일 분산~~ → ✅ 실제 Firebase 데이터 표시로 수정
-- ~~Vercel API 의존성~~ → ✅ Firebase 직접 연결로 우회 완료
-- ~~Firebase 데이터 입력 실패~~ → ✅ Firestore REST API로 해결
-- ~~점유율 표시 기능 부재~~ → ✅ 시장 점유율 계산 및 표시 구현
+- ~~Firebase 429 Rate Limit 에러~~ → ✅ 정적 JSON 파일로 전환
+- ~~차트가 표시되지 않는 문제~~ → ✅ 데이터 구조 수정으로 해결
+- ~~헤더 클릭 시 데이터 중복~~ → ✅ 메모이제이션 적용으로 해결
+- ~~테이블 정렬 기능 부족~~ → ✅ 전체 컬럼 정렬 기능 구현
+- ~~기본 정렬이 rank 오름차순~~ → ✅ 온라인 플레이어 내림차순으로 변경
 
 ## 🌐 온라인 접근
 
 - **웹사이트**: https://garimto81.github.io/poker-online-analyze ✅ 정상 서비스
-- **Firebase Database**: ✅ 정상 작동 (직접 API 접근 가능)
-- **Data Source**: PokerScout.com (59개 사이트)
+- **데이터 소스**: 정적 JSON 파일 (`/data/latest.json`)
+- **원본 데이터**: PokerScout.com (42개 사이트)
 
-## 📊 데이터 수집 동작 방식
+## 📊 데이터 처리 방식
 
-### 동일 날짜 중복 실행 처리
-- **각 실행은 독립적인 타임스탬프 문서 생성**: 같은 날 여러 번 실행해도 이전 데이터를 덮어쓰지 않음
-- **일중 트렌드 추적 가능**: 동일한 날에 여러 데이터 포인트가 있으면 시간별 변화 추적 가능
-- **예시**: 7/30일에 3번 실행하면 3개의 별도 문서가 생성되어 일중 플레이어 수 변화 확인 가능
-- **Firebase 구조**: 각 사이트별로 `sites/{site_name}/traffic_logs/{ISO_timestamp}` 형태로 저장
+### 정적 JSON 데이터 구조
+- **파일 위치**: `frontend/public/data/latest.json`
+- **업데이트 방식**: Python 크롤러가 직접 JSON 파일 생성
+- **데이터 포맷**: 
+  ```json
+  {
+    "timestamp": "2025-08-12T12:00:00",
+    "sites": [
+      {
+        "rank": 1,
+        "site_name": "PokerStars",
+        "players_online": 8500,
+        "cash_players": 3200,
+        "peak_24h": 12000,
+        "seven_day_avg": 9800
+      }
+    ]
+  }
+  ```
 
 ## 주요 기능
 
 ### 데이터 수집
-- PokerScout.com에서 59개 온라인 포커 사이트의 실시간 데이터 크롤링
-- Firebase Firestore에 일별 트래픽 데이터 저장
-- GitHub Actions를 통한 완전 자동화된 일일 크롤링 (매일 오전 3시 KST)
-- 서버 없이 클라우드에서 동작하는 크롤링 시스템
+- PokerScout.com에서 42개 온라인 포커 사이트의 실시간 데이터 크롤링
+- 정적 JSON 파일로 데이터 저장 (Firebase API 제한 우회)
+- Python 크롤러 (`enhanced_crawler_with_alert.py`) 사용
+- CloudScraper로 안티봇 보호 우회
 
 ### 데이터 시각화
 - **실시간 순위 테이블**
-  - 현재 온라인 플레이어 수 기준 순위
-  - 모든 컬럼별 정렬 기능 (클릭하여 오름차순/내림차순 전환)
+  - 기본 정렬: 온라인 플레이어 수 내림차순
+  - 모든 컬럼별 정렬 기능 (클릭하여 오름차순/내림차순 토글)
+  - 정렬 상태 시각적 표시 (↑ 오름차순, ↓ 내림차순, ↕ 정렬 가능)
+  - 현재 정렬 컬럼 배경색 강조
   - 각 사이트의 시장 점유율(%) 표시 (Players Online, Cash Players)
   - 3자리마다 쉼표(,) 추가로 숫자 가독성 향상
   - GG Poker 네트워크 사이트 하이라이트
@@ -82,11 +102,10 @@
 ## 기술 스택
 
 *   **프론트엔드:** React (TypeScript), Chart.js (react-chartjs-2), CSS
-*   **백엔드:** ~~Python (FastAPI)~~ → Firebase 직접 연결로 서버리스 구현
-*   **데이터베이스:** Firebase (Firestore) - 59개 사이트 데이터 저장
-*   **크롤링:** Python (Cloudscraper, BeautifulSoup) - GitHub Actions 기반
-*   **배포:** GitHub Pages (프론트엔드), GitHub Actions (자동 크롤링)
-*   **클라우드:** 완전 서버리스 아키텍처 (PC 꺼져도 동작)
+*   **데이터 서비스:** 정적 JSON 파일 (Firebase API 제한 우회)
+*   **크롤링:** Python (Cloudscraper, BeautifulSoup)
+*   **배포:** GitHub Pages
+*   **성능 최적화:** React.useMemo, useCallback 활용
 
 ## 로컬 환경 설정
 
