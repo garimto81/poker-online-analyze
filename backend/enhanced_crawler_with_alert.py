@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 # Firebase 프로젝트 설정
 FIREBASE_PROJECT_ID = "poker-online-analyze"
 FIRESTORE_BASE_URL = f"https://firestore.googleapis.com/v1/projects/{FIREBASE_PROJECT_ID}/databases/(default)/documents"
+FIREBASE_REALTIME_DB_URL = "https://poker-analyzer-ggp-default-rtdb.firebaseio.com"
 
 # 알림 설정 (환경 변수에서 읽기)
 ALERT_CONFIG = {
@@ -227,7 +228,11 @@ class RobustPokerScoutCrawler:
         self.scraper = cloudscraper.create_scraper(
             browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False}
         )
-        self.gg_poker_sites = ['GGNetwork', 'GGPoker ON', 'GG Poker', 'GGPoker']
+        self.gg_poker_sites = [
+            'GGNetwork', 'GGPoker ON', 'GG Poker', 'GGPoker', 
+            'GG Network', 'GGPoker.com', 'GG', 'Natural8',
+            'GGPoker Global', 'GGPoker EU', 'BetKings', 'GGasia'
+        ]
         self.retry_count = 3
         self.timeout = 30
         self.last_successful_data = None
@@ -423,17 +428,24 @@ class RobustPokerScoutCrawler:
             
             for row in rows:
                 try:
-                    # 사이트 이름 추출
-                    brand_title = row.find('span', {'class': 'brand-title'})
-                    if not brand_title:
-                        brand_title = row.find('span', class_=re.compile('brand', re.I))
-                    
-                    if not brand_title:
+                    # 광고 행이나 특별 행 스킵
+                    if self._is_advertisement_row(row):
+                        logger.debug("광고 행 스킵됨")
                         continue
                     
-                    site_name = brand_title.get_text(strip=True)
+                    # 순위 번호 추출
+                    rank = self._extract_rank(row)
+                    
+                    # 사이트 이름 추출 (여러 방법 시도)
+                    site_name = self._extract_site_name(row)
+                    
                     if not site_name or len(site_name) < 2:
+                        logger.debug(f"사이트명 추출 실패, 행 스킵: {site_name}")
                         continue
+                    
+                    # WPT Global, GGPoker ON 등 특정 사이트 확인
+                    if 'WPT' in site_name or 'GGPoker ON' in site_name:
+                        logger.info(f"주요 사이트 감지: {site_name}")
                     
                     # 통계 추출
                     stats = self._extract_stats(row)
@@ -441,10 +453,14 @@ class RobustPokerScoutCrawler:
                     if stats['players_online'] == 0 and stats['cash_players'] == 0 and stats['peak_24h'] == 0:
                         continue
                     
-                    site_name = re.sub(r'[^\w\s\-\(\)\.&]', '', site_name).strip()
-                    category = 'GG_POKER' if site_name in self.gg_poker_sites else 'COMPETITOR'
+                    # 사이트명 정리
+                    site_name = self._clean_site_name(site_name)
+                    
+                    # 카테고리 결정 (더 포괄적인 매칭)
+                    category = self._determine_category(site_name)
                     
                     collected_data.append({
+                        'rank': rank,
                         'site_name': site_name,
                         'category': category,
                         'players_online': stats['players_online'],
@@ -453,6 +469,10 @@ class RobustPokerScoutCrawler:
                         'seven_day_avg': stats['seven_day_avg'],
                         'collected_at': datetime.now(timezone.utc).isoformat()
                     })
+                    
+                    # 주요 사이트 로그
+                    if category == 'GG_POKER' or 'WPT' in site_name:
+                        logger.info(f"#{rank} {site_name}: {stats['players_online']:,}명 온라인 ({category})")
                     
                 except Exception as e:
                     logger.debug(f"행 파싱 오류: {e}")
@@ -465,7 +485,7 @@ class RobustPokerScoutCrawler:
             return []
     
     def _extract_stats(self, row) -> Dict[str, int]:
-        """테이블 행에서 통계 추출"""
+        """테이블 행에서 통계 추출 (여러 방법 시도)"""
         stats = {
             'players_online': 0,
             'cash_players': 0,
@@ -473,23 +493,244 @@ class RobustPokerScoutCrawler:
             'seven_day_avg': 0
         }
         
-        # ID로 찾기
-        for stat_name, td_id in [
-            ('players_online', 'online'),
-            ('cash_players', 'cash'),
-            ('peak_24h', 'peak'),
-            ('seven_day_avg', 'avg')
-        ]:
-            td = row.find('td', {'id': td_id})
-            if td:
-                # span 태그 확인
-                span = td.find('span')
-                text = span.get_text(strip=True) if span else td.get_text(strip=True)
-                text = text.replace(',', '')
-                if text.isdigit():
-                    stats[stat_name] = int(text)
+        try:
+            # 방법 1: ID로 찾기
+            for stat_name, td_id in [
+                ('players_online', 'online'),
+                ('cash_players', 'cash'),
+                ('peak_24h', 'peak'),
+                ('seven_day_avg', 'avg')
+            ]:
+                td = row.find('td', {'id': td_id})
+                if td:
+                    # span 태그 확인
+                    span = td.find('span')
+                    text = span.get_text(strip=True) if span else td.get_text(strip=True)
+                    text = text.replace(',', '')
+                    if text.isdigit():
+                        stats[stat_name] = int(text)
+            
+            # 방법 2: 순서로 추출 (ID로 찾기 실패 시)
+            if all(v == 0 for v in stats.values()):
+                tds = row.find_all('td')
+                if len(tds) >= 6:  # 순위, 사이트명, 온라인, 캐시, 피크, 평균
+                    stat_indices = [2, 3, 4, 5]  # 온라인, 캐시, 피크, 평균 순서
+                    stat_names = ['players_online', 'cash_players', 'peak_24h', 'seven_day_avg']
+                    
+                    for i, stat_name in enumerate(stat_names):
+                        if stat_indices[i] < len(tds):
+                            td = tds[stat_indices[i]]
+                            text = td.get_text(strip=True).replace(',', '')
+                            # 숫자만 추출
+                            numbers = re.findall(r'\d+', text)
+                            if numbers:
+                                stats[stat_name] = int(numbers[0])
+            
+            # 방법 3: 클래스명으로 찾기
+            if all(v == 0 for v in stats.values()):
+                for stat_name in ['players_online', 'cash_players', 'peak_24h', 'seven_day_avg']:
+                    # 일반적인 클래스명 패턴들
+                    class_patterns = [
+                        f'{stat_name}', stat_name.replace('_', '-'), 
+                        stat_name.split('_')[0], 'stat', 'number'
+                    ]
+                    
+                    for pattern in class_patterns:
+                        td = row.find('td', class_=re.compile(pattern, re.I))
+                        if td:
+                            text = td.get_text(strip=True).replace(',', '')
+                            numbers = re.findall(r'\d+', text)
+                            if numbers:
+                                stats[stat_name] = int(numbers[0])
+                                break
+            
+            # 로깅
+            if any(v > 0 for v in stats.values()):
+                logger.debug(f"통계 추출 성공: {stats}")
+            else:
+                logger.debug("통계 추출 실패 - 모든 값이 0")
+                
+        except Exception as e:
+            logger.debug(f"통계 추출 중 오류: {e}")
         
         return stats
+    
+    def _is_advertisement_row(self, row) -> bool:
+        """광고 행이나 특별한 행인지 확인"""
+        try:
+            # 광고 관련 키워드 확인
+            text_content = row.get_text(strip=True).lower()
+            
+            # 일반적인 광고 키워드들
+            ad_keywords = [
+                'best bonus', 'bonus', 'advertisement', 'ad', 'promo',
+                'promotion', 'sponsor', 'featured', 'coinpoker'
+            ]
+            
+            for keyword in ad_keywords:
+                if keyword in text_content:
+                    return True
+            
+            # 링크나 광고 class가 있는지 확인
+            if row.find('a', class_=re.compile('ad|bonus|promo', re.I)):
+                return True
+            
+            # 비정상적으로 많은 링크가 있는 행 (광고 가능성)
+            links = row.find_all('a')
+            if len(links) > 3:
+                return True
+            
+            # 통계 데이터가 없거나 비정상적인 행
+            stats_cells = row.find_all('td')
+            if len(stats_cells) < 4:  # 최소 4개 컬럼(순위, 사이트명, 플레이어수, 통계) 필요
+                return True
+                
+            return False
+            
+        except Exception as e:
+            logger.debug(f"광고 행 검사 중 오류: {e}")
+            return False
+    
+    def _extract_rank(self, row) -> int:
+        """순위 번호 추출"""
+        try:
+            # 첫 번째 td에서 순위 찾기
+            first_td = row.find('td')
+            if first_td:
+                # 숫자만 추출
+                rank_text = first_td.get_text(strip=True)
+                # 순위 번호 패턴 매칭 (1, 2, 3... 또는 #1, #2, #3...)
+                rank_match = re.search(r'#?(\d+)', rank_text)
+                if rank_match:
+                    return int(rank_match.group(1))
+            
+            # 대안: class나 id로 순위 셀 찾기
+            rank_cell = row.find('td', class_=re.compile('rank|position', re.I))
+            if rank_cell:
+                rank_text = rank_cell.get_text(strip=True)
+                rank_match = re.search(r'(\d+)', rank_text)
+                if rank_match:
+                    return int(rank_match.group(1))
+            
+            return 0  # 순위를 찾을 수 없음
+            
+        except Exception as e:
+            logger.debug(f"순위 추출 중 오류: {e}")
+            return 0
+    
+    def _extract_site_name(self, row) -> str:
+        """사이트 이름 추출 (여러 방법 시도)"""
+        try:
+            # 방법 1: brand-title class
+            brand_title = row.find('span', {'class': 'brand-title'})
+            if brand_title:
+                site_name = brand_title.get_text(strip=True)
+                if site_name and len(site_name) > 1:
+                    return site_name
+            
+            # 방법 2: brand 관련 class 검색
+            brand_span = row.find('span', class_=re.compile('brand', re.I))
+            if brand_span:
+                site_name = brand_span.get_text(strip=True)
+                if site_name and len(site_name) > 1:
+                    return site_name
+            
+            # 방법 3: 사이트 링크에서 추출
+            site_link = row.find('a', class_=re.compile('site|brand', re.I))
+            if site_link:
+                site_name = site_link.get_text(strip=True)
+                if site_name and len(site_name) > 1:
+                    return site_name
+            
+            # 방법 4: 두 번째 td에서 텍스트 추출 (순위 다음 셀)
+            tds = row.find_all('td')
+            if len(tds) >= 2:
+                site_cell = tds[1]  # 두 번째 셀 (첫 번째는 보통 순위)
+                # 링크가 있으면 링크 텍스트 사용
+                link = site_cell.find('a')
+                if link:
+                    site_name = link.get_text(strip=True)
+                else:
+                    site_name = site_cell.get_text(strip=True)
+                
+                if site_name and len(site_name) > 1:
+                    return site_name
+            
+            # 방법 5: 강력한 패턴으로 사이트명 검색
+            all_text = row.get_text()
+            # 알려진 포커 사이트 패턴들
+            poker_sites = [
+                r'PokerStars?', r'GGPoker(?:\s+ON)?', r'WPT\s+Global?', 
+                r'partypoker', r'888poker', r'BetMGM', r'Natural8',
+                r'CoinPoker', r'Ignition', r'BetOnline', r'Americas Cardroom',
+                r'Bodog', r'SportsBetting', r'Bovada', r'WSOP'
+            ]
+            
+            for pattern in poker_sites:
+                match = re.search(pattern, all_text, re.IGNORECASE)
+                if match:
+                    return match.group(0).strip()
+            
+            return ""
+            
+        except Exception as e:
+            logger.debug(f"사이트명 추출 중 오류: {e}")
+            return ""
+    
+    def _clean_site_name(self, site_name: str) -> str:
+        """사이트명 정리 및 표준화"""
+        if not site_name:
+            return ""
+        
+        # 특수문자 제거 (허용: 문자, 숫자, 공백, 하이픈, 괄호, 점, &)
+        cleaned = re.sub(r'[^\w\s\-\(\)\.&]', '', site_name).strip()
+        
+        # 연속 공백 제거
+        cleaned = re.sub(r'\s+', ' ', cleaned)
+        
+        # 알려진 사이트명 표준화
+        standardizations = {
+            'gg poker': 'GGPoker',
+            'ggpoker on': 'GGPoker ON',
+            'wpt global': 'WPT Global',
+            'pokerstars': 'PokerStars',
+            'party poker': 'partypoker',
+            '888 poker': '888poker'
+        }
+        
+        cleaned_lower = cleaned.lower()
+        for old, new in standardizations.items():
+            if old in cleaned_lower:
+                cleaned = new
+                break
+        
+        return cleaned
+    
+    def _determine_category(self, site_name: str) -> str:
+        """사이트 카테고리 결정 (더 포괄적인 매칭)"""
+        if not site_name:
+            return 'UNKNOWN'
+        
+        site_lower = site_name.lower()
+        
+        # GG Network 관련 사이트들 (더 포괄적)
+        gg_patterns = [
+            'gg', 'natural8', 'betkings', 'ggasia', 'ggpoker'
+        ]
+        
+        for pattern in gg_patterns:
+            if pattern in site_lower:
+                return 'GG_POKER'
+        
+        # 다른 주요 네트워크들
+        if any(keyword in site_lower for keyword in ['pokerstars', 'stars']):
+            return 'POKERSTARS'
+        elif any(keyword in site_lower for keyword in ['wpt', 'world poker tour']):
+            return 'WPT'
+        elif any(keyword in site_lower for keyword in ['party', 'bwin']):
+            return 'PARTY_POKER'
+        
+        return 'COMPETITOR'
     
     def _handle_complete_failure(self):
         """모든 크롤링 방법 실패 시 처리"""
@@ -560,6 +801,71 @@ def get_access_token():
         logger.error(f"액세스 토큰 생성 실패: {e}")
         return None
 
+def upload_to_realtime_database(data):
+    """Realtime Database에 데이터 업로드 (GitHub Pages용)"""
+    if not data:
+        return False
+    
+    try:
+        # 현재 날짜를 키로 사용
+        date_key = datetime.now().strftime("%Y-%m-%d")
+        
+        # 데이터 구조 생성
+        db_data = {
+            "date": date_key,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "sites": []
+        }
+        
+        # 사이트 데이터 변환
+        for site in data:
+            site_data = {
+                "siteName": site.get('site_name', ''),
+                "category": site.get('category', 'COMPETITOR'),
+                "rank": site.get('rank', 999),
+                "cashPlayers": site.get('cash_players', 0),
+                "playersOnline": site.get('players_online', 0),
+                "peak24h": site.get('peak_24h', 0),
+                "sevenDayAvg": site.get('seven_day_avg', 0)
+            }
+            db_data["sites"].append(site_data)
+        
+        # 전체 통계 추가
+        total_cash = sum(s.get('cash_players', 0) for s in data)
+        total_online = sum(s.get('players_online', 0) for s in data)
+        gg_sites = [s for s in data if s.get('category') == 'GG_POKER']
+        gg_total = sum(s.get('cash_players', 0) for s in gg_sites)
+        
+        db_data["summary"] = {
+            "totalSites": len(data),
+            "totalCashPlayers": total_cash,
+            "totalOnlinePlayers": total_online,
+            "ggNetworkSites": len(gg_sites),
+            "ggNetworkPlayers": gg_total,
+            "ggNetworkShare": round((gg_total / total_cash * 100) if total_cash > 0 else 0, 1)
+        }
+        
+        # Realtime Database에 업로드
+        # 1. pokerData/{date} 경로에 저장
+        url = f"{FIREBASE_REALTIME_DB_URL}/pokerData/{date_key}.json"
+        response = requests.put(url, json=db_data)
+        
+        if response.status_code == 200:
+            logger.info(f"✅ Realtime Database 업로드 성공: {date_key}")
+            
+            # 2. latest 경로에도 저장 (최신 데이터 빠른 접근용)
+            latest_url = f"{FIREBASE_REALTIME_DB_URL}/latest.json"
+            requests.put(latest_url, json=db_data)
+            
+            return True
+        else:
+            logger.error(f"❌ Realtime Database 업로드 실패: {response.status_code}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Realtime Database 업로드 중 오류: {e}")
+        return False
+
 def upload_to_firestore_rest(data, access_token=None):
     """Firestore에 데이터 업로드"""
     if not data:
@@ -579,12 +885,13 @@ def upload_to_firestore_rest(data, access_token=None):
             site_name = site_data['site_name']
             collected_at_iso = site_data['collected_at']
             
-            # sites 컬렉션 업데이트
+            # sites 컬렉션 업데이트 (순위 정보 포함)
             site_url = f"{FIRESTORE_BASE_URL}/sites/{site_name}"
             site_doc = {
                 "fields": {
                     "site_name": {"stringValue": site_name},
                     "category": {"stringValue": site_data['category']},
+                    "rank": {"integerValue": str(site_data.get('rank', 999))},  # 순위 추가
                     "last_updated_at": {"timestampValue": datetime.now(timezone.utc).isoformat()}
                 }
             }
@@ -600,6 +907,7 @@ def upload_to_firestore_rest(data, access_token=None):
             traffic_url = f"{FIRESTORE_BASE_URL}/sites/{site_name}/traffic_logs/{doc_id}"
             traffic_doc = {
                 "fields": {
+                    "rank": {"integerValue": str(site_data.get('rank', 0))},
                     "players_online": {"integerValue": str(site_data['players_online'])},
                     "cash_players": {"integerValue": str(site_data['cash_players'])},
                     "peak_24h": {"integerValue": str(site_data['peak_24h'])},
@@ -650,7 +958,11 @@ def run_enhanced_crawl():
                     f"{site['players_online']:,}명 온라인"
                 )
             
-            # Firebase 업로드
+            # Firebase 업로드 (두 가지 방식 모두 시도)
+            # 1. Realtime Database 업로드 (GitHub Pages용)
+            realtime_success = upload_to_realtime_database(crawled_data)
+            
+            # 2. Firestore 업로드 (기존 방식)
             access_token = get_access_token()
             upload_success = upload_to_firestore_rest(crawled_data, access_token)
             

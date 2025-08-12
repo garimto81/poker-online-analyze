@@ -1,0 +1,201 @@
+{
+  "timestamp": "2025-08-12 11:04:52",
+  "sites": [
+    {
+      "rank": 2,
+      "name": "IDNPoker",
+      "online": 5528,
+      "cash": 1400,
+      "peak_24h": 2366,
+      "avg_7d": 1450,
+      "is_gg": false
+    },
+    {
+      "rank": 3,
+      "name": "PaiWangLuo (Bodog)",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 1500,
+      "avg_7d": 800,
+      "is_gg": false
+    },
+    {
+      "rank": 4,
+      "name": "Pokerdom",
+      "online": 2159,
+      "cash": 609,
+      "peak_24h": 975,
+      "avg_7d": 525,
+      "is_gg": false
+    },
+    {
+      "rank": 5,
+      "name": "MPL Poker",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 900,
+      "avg_7d": 525,
+      "is_gg": false
+    },
+    {
+      "rank": 8,
+      "name": "BetMGM MI",
+      "online": 0,
+      "cash": 402,
+      "peak_24h": 673,
+      "avg_7d": 375,
+      "is_gg": false
+    },
+    {
+      "rank": 9,
+      "name": "Chico Poker",
+      "online": 2217,
+      "cash": 451,
+      "peak_24h": 573,
+      "avg_7d": 375,
+      "is_gg": false
+    },
+    {
+      "rank": 10,
+      "name": "PokerKlas",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 515,
+      "avg_7d": 280,
+      "is_gg": false
+    },
+    {
+      "rank": 11,
+      "name": "WSOP MI",
+      "online": 0,
+      "cash": 393,
+      "peak_24h": 393,
+      "avg_7d": 260,
+      "is_gg": false
+    },
+    {
+      "rank": 13,
+      "name": "Gamezy",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 325,
+      "avg_7d": 160,
+      "is_gg": false
+    },
+    {
+      "rank": 14,
+      "name": "Pocket52",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 300,
+      "avg_7d": 150,
+      "is_gg": false
+    },
+    {
+      "rank": 15,
+      "name": "A23 Poker",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 250,
+      "avg_7d": 120,
+      "is_gg": false
+    },
+    {
+      "rank": 17,
+      "name": "SkyPoker",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 220,
+      "avg_7d": 100,
+      "is_gg": false
+    },
+    {
+      "rank": 18,
+      "name": "PokerMatch",
+      "online": 237,
+      "cash": 71,
+      "peak_24h": 157,
+      "avg_7d": 60,
+      "is_gg": false
+    },
+    {
+      "rank": 19,
+      "name": "Bunga365",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 110,
+      "avg_7d": 45,
+      "is_gg": false
+    },
+    {
+      "rank": 21,
+      "name": "MobilePokerClub",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 55,
+      "avg_7d": 20,
+      "is_gg": false
+    },
+    {
+      "rank": 23,
+      "name": "AconcaguaPoker.es",
+      "online": 99,
+      "cash": 53,
+      "peak_24h": 53,
+      "avg_7d": 16,
+      "is_gg": false
+    },
+    {
+      "rank": 24,
+      "name": "PokerDangal",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 40,
+      "avg_7d": 14,
+      "is_gg": false
+    },
+    {
+      "rank": 26,
+      "name": "Adjarabet",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 25,
+      "avg_7d": 10,
+      "is_gg": false
+    },
+    {
+      "rank": 27,
+      "name": "Merge Gaming",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 20,
+      "avg_7d": 10,
+      "is_gg": false
+    },
+    {
+      "rank": 28888,
+      "name": " US",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 0,
+      "avg_7d": 0,
+      "is_gg": false
+    },
+    {
+      "rank": 29,
+      "name": "WSOP US",
+      "online": 0,
+      "cash": 0,
+      "peak_24h": 0,
+      "avg_7d": 0,
+      "is_gg": false
+    }
+  ],
+  "summary": {
+    "total_sites": 21,
+    "total_online": 10240,
+    "total_cash": 3379,
+    "gg_sites": 0,
+    "gg_cash": 0
+  }
+}

@@ -86,9 +86,19 @@ class LivePokerScoutCrawler:
                     site_name = re.sub(r'[^\w\s\-\(\)\.&]', '', site_name).strip()
                     category = 'GG_POKER' if site_name in self.gg_poker_sites else 'COMPETITOR'
                     
+                    # 순위 추출
+                    rank = 999  # 기본값
+                    if row.find('td'):
+                        first_td = row.find('td').get_text(strip=True)
+                        import re
+                        rank_match = re.match(r'^(\d+)', first_td)
+                        if rank_match:
+                            rank = int(rank_match.group(1))
+                    
                     collected_data.append({
                         'site_name': site_name,
                         'category': category,
+                        'rank': rank,  # 순위 추가
                         'players_online': players_online,
                         'cash_players': cash_players,
                         'peak_24h': peak_24h,
@@ -160,12 +170,13 @@ def upload_to_firestore_rest(data, access_token=None):
             site_name = site_data['site_name']
             collected_at_iso = site_data['collected_at']
             
-            # 1. sites 컬렉션 업데이트
+            # 1. sites 컬렉션 업데이트 (순위 포함)
             site_url = f"{FIRESTORE_BASE_URL}/sites/{site_name}"
             site_doc = {
                 "fields": {
                     "site_name": {"stringValue": site_name},
                     "category": {"stringValue": site_data['category']},
+                    "rank": {"integerValue": str(site_data.get('rank', 999))},  # 순위 추가
                     "last_updated_at": {"timestampValue": datetime.now(timezone.utc).isoformat()}
                 }
             }
@@ -177,12 +188,13 @@ def upload_to_firestore_rest(data, access_token=None):
                 logger.warning(f"사이트 문서 업데이트 실패 ({site_name}): {response.status_code} - {response.text}")
                 continue
             
-            # 2. traffic_logs 하위 컬렉션에 추가
+            # 2. traffic_logs 하위 컬렉션에 추가 (순위 포함)
             # 문서 ID로 ISO 타임스탬프 사용 (기존 형식과 일치)
             doc_id = collected_at_iso
             traffic_url = f"{FIRESTORE_BASE_URL}/sites/{site_name}/traffic_logs/{doc_id}"
             traffic_doc = {
                 "fields": {
+                    "rank": {"integerValue": str(site_data.get('rank', 999))},  # 순위 추가
                     "players_online": {"integerValue": str(site_data['players_online'])},
                     "cash_players": {"integerValue": str(site_data['cash_players'])},
                     "peak_24h": {"integerValue": str(site_data['peak_24h'])},
