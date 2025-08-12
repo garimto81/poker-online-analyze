@@ -46,10 +46,26 @@ Thumbs.db
 
 # Other
 *.db
+# Temporary test and data files
+*test_results_*.json
+*poker_data_*.json
+*crawl_failure_*.json
+*backup_*.json
+error_screenshot_*.png
+
+# Playwright test results
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Test artifacts
+*.spec.js.map
+*.test.js.map
+
 # JSON files - exclude all except specific exceptions
-*.json
 !package.json
 !package-lock.json
 !tsconfig.json
+!playwright.config.ts
 !data/*.json
 *.csv
