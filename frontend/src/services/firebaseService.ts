@@ -53,6 +53,13 @@ class DataService {
       // 각 사이트에 대한 더미 일별 데이터 생성 (실제 일별 데이터가 없으므로)
       currentRanking.forEach(site => {
         allSitesData.data[site.site_name] = {
+          current_stats: {
+            site_name: site.site_name,
+            players_online: site.players_online,
+            cash_players: site.cash_players,
+            peak_24h: site.peak_24h,
+            seven_day_avg: site.seven_day_avg
+          },
           daily_data: Array(days).fill(null).map((_, i) => ({
             date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
             players_online: site.players_online + Math.floor(Math.random() * 200 - 100),
