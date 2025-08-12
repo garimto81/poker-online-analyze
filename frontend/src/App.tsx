@@ -48,8 +48,8 @@ function App() {
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [allSitesData, setAllSitesData] = useState<AllSitesData | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'charts'>('table');
-  const [sortField, setSortField] = useState<SortField>('rank');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [sortField, setSortField] = useState<SortField>('players_online');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [fallbackData, setFallbackData] = useState<Site[] | null>(null);
   const [isDataFresh, setIsDataFresh] = useState(false); // 데이터 신선도 상태
   const [lastFetchAttempt, setLastFetchAttempt] = useState<number>(0); // 마지막 fetch 시도 시간
@@ -410,10 +410,14 @@ function App() {
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
+      // 같은 필드를 클릭하면 정렬 방향 토글
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
+      // 다른 필드를 클릭하면 해당 필드로 변경하고 내림차순으로 시작
       setSortField(field);
-      setSortDirection('asc');
+      // 숫자 필드는 내림차순, 문자열 필드는 오름차순으로 기본 설정
+      const numericFields: SortField[] = ['rank', 'players_online', 'cash_players', 'peak_24h', 'seven_day_avg', 'players_share', 'cash_share'];
+      setSortDirection(numericFields.includes(field) ? 'desc' : 'asc');
     }
   };
 
@@ -440,9 +444,9 @@ function App() {
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) {
-      return ''; // 정렬되지 않은 상태
+      return ' ↕'; // 정렬 가능 표시
     }
-    return sortDirection === 'asc' ? '▲' : '▼';
+    return sortDirection === 'asc' ? ' ↑' : ' ↓';
   };
 
   // 사용자 친화적 에러 메시지
@@ -571,39 +575,39 @@ function App() {
           <table className="sites-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort('rank')} style={{ cursor: 'pointer' }}>
-                  Rank {getSortIcon('rank')}
+                <th onClick={() => handleSort('rank')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  Rank{getSortIcon('rank')}
                 </th>
-                <th onClick={() => handleSort('site_name')} style={{ cursor: 'pointer' }}>
-                  Site Name {getSortIcon('site_name')}
+                <th onClick={() => handleSort('site_name')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  Site Name{getSortIcon('site_name')}
                 </th>
-                <th onClick={() => handleSort('category')} style={{ cursor: 'pointer' }}>
-                  Category {getSortIcon('category')}
+                <th onClick={() => handleSort('category')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  Category{getSortIcon('category')}
                 </th>
-                <th onClick={() => handleSort('players_online')} style={{ cursor: 'pointer' }}>
-                  Players Online {getSortIcon('players_online')}
+                <th onClick={() => handleSort('players_online')} style={{ cursor: 'pointer', userSelect: 'none', backgroundColor: sortField === 'players_online' ? '#f0f8ff' : 'transparent' }}>
+                  Players Online{getSortIcon('players_online')}
                 </th>
-                <th onClick={() => handleSort('players_share')} style={{ cursor: 'pointer' }}>
-                  Share % {getSortIcon('players_share')}
+                <th onClick={() => handleSort('players_share')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  Share %{getSortIcon('players_share')}
                 </th>
-                <th onClick={() => handleSort('cash_players')} style={{ cursor: 'pointer' }}>
-                  Cash Players {getSortIcon('cash_players')}
+                <th onClick={() => handleSort('cash_players')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  Cash Players{getSortIcon('cash_players')}
                 </th>
-                <th onClick={() => handleSort('cash_share')} style={{ cursor: 'pointer' }}>
-                  Share % {getSortIcon('cash_share')}
+                <th onClick={() => handleSort('cash_share')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  Share %{getSortIcon('cash_share')}
                 </th>
-                <th onClick={() => handleSort('peak_24h')} style={{ cursor: 'pointer' }}>
-                  24h Peak {getSortIcon('peak_24h')}
+                <th onClick={() => handleSort('peak_24h')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  24h Peak{getSortIcon('peak_24h')}
                 </th>
-                <th onClick={() => handleSort('seven_day_avg')} style={{ cursor: 'pointer' }}>
-                  7-Day Avg {getSortIcon('seven_day_avg')}
+                <th onClick={() => handleSort('seven_day_avg')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  7-Day Avg{getSortIcon('seven_day_avg')}
                 </th>
               </tr>
             </thead>
             <tbody>
               {sortedSites.map((site, index) => (
                 <tr key={site.site_name} className={site.category === 'GG_POKER' ? 'gg-poker-row' : ''}>
-                  <td className="rank">#{sortField === 'rank' && sortDirection === 'asc' ? site.rank : index + 1}</td>
+                  <td className="rank">#{site.rank || index + 1}</td>
                   <td className="site-name">{site.site_name}</td>
                   <td>
                     <span 
