@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Static Files</title>
+</head>
+<body>
+    <h1>Static Files Test</h1>
+    <p>Testing if static files are accessible...</p>
+    
+    <script>
+        // Try to load the main JavaScript file
+        const script = document.createElement('script');
+        script.src = '/poker-online-analyze/static/js/main.0a3ed4ee.js';
+        script.onload = function() {
+            document.body.innerHTML += '<p style="color: green;">✓ JavaScript file loaded successfully!</p>';
+        };
+        script.onerror = function() {
+            document.body.innerHTML += '<p style="color: red;">✗ JavaScript file failed to load</p>';
+            
+            // Try alternative path
+            const script2 = document.createElement('script');
+            script2.src = './static/js/main.0a3ed4ee.js';
+            script2.onload = function() {
+                document.body.innerHTML += '<p style="color: green;">✓ JavaScript file loaded with relative path!</p>';
+            };
+            script2.onerror = function() {
+                document.body.innerHTML += '<p style="color: red;">✗ JavaScript file failed with relative path too</p>';
+            };
+            document.head.appendChild(script2);
+        };
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
